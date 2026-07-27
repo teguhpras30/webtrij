@@ -6,12 +6,19 @@ interface CategorySidebarProps {
   setActiveCategory: React.Dispatch<React.SetStateAction<string>>;
 }
 
+const ALL_CATEGORY = "Semua Produk";
+
 export default function CategorySidebar({
   categories = staticCategories,
   activeCategory,
   setActiveCategory,
 }: CategorySidebarProps) {
-  const displayCategories = categories && categories.length > 0 ? categories : staticCategories;
+  const displayCategories =
+    categories && categories.length > 0
+      ? categories.includes(ALL_CATEGORY)
+        ? categories
+        : [ALL_CATEGORY, ...categories]
+      : [ALL_CATEGORY, ...staticCategories];
 
   return (
     <>
@@ -21,7 +28,7 @@ export default function CategorySidebar({
           <button
             key={category}
             onClick={() => setActiveCategory(category)}
-            className={`whitespace-nowrap rounded-full px-5 py-2 text-sm transition ${
+            className={`whitespace-nowrap rounded-full px-5 py-2 text-sm transition cursor-pointer ${
               activeCategory === category
                 ? "bg-[#774EFC] text-white"
                 : "bg-white border border-gray-200 text-[#1D1D1F]"
@@ -38,7 +45,7 @@ export default function CategorySidebar({
           <button
             key={category}
             onClick={() => setActiveCategory(category)}
-            className={`mb-2 flex w-full gap-4 rounded-xl px-5 py-4 text-left transition ${
+            className={`mb-2 flex w-full gap-4 rounded-xl px-5 py-4 text-left transition cursor-pointer ${
               activeCategory === category
                 ? "bg-[#774EFC] text-white"
                 : "text-[#1D1D1F] hover:bg-gray-100"

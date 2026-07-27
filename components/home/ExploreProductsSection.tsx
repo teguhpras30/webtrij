@@ -6,10 +6,12 @@ import { categories as initialCategories } from "@/data/categories";
 import ProductCard from "@/components/home/ProductCard";
 import { motion } from "framer-motion";
 
+const ALL_CATEGORY = "Semua Produk";
+
 export default function ExploreProductsSection() {
-  const [categoriesList, setCategoriesList] = useState<string[]>(initialCategories);
+  const [categoriesList, setCategoriesList] = useState<string[]>([ALL_CATEGORY, ...initialCategories]);
   const [allProducts, setAllProducts] = useState(initialProducts);
-  const [activeCategory, setActiveCategory] = useState(initialCategories[0]);
+  const [activeCategory, setActiveCategory] = useState(ALL_CATEGORY);
 
   useEffect(() => {
     async function fetchData() {
@@ -22,8 +24,7 @@ export default function ExploreProductsSection() {
         if (resC.ok) {
           const cats = await resC.json();
           if (Array.isArray(cats) && cats.length > 0) {
-            setCategoriesList(cats);
-            setActiveCategory(cats[0]);
+            setCategoriesList([ALL_CATEGORY, ...cats.filter((c: string) => c !== ALL_CATEGORY)]);
           }
         }
 
@@ -40,9 +41,16 @@ export default function ExploreProductsSection() {
     fetchData();
   }, []);
 
-  const filteredProducts = allProducts
-    .filter((product: any) => product.category === activeCategory)
-    .slice(0, 4);
+  const filteredProducts = (
+    activeCategory === ALL_CATEGORY || !activeCategory
+      ? allProducts
+      : allProducts.filter(
+          (product: any) =>
+            (typeof product.category === "string"
+              ? product.category
+              : product.category?.name) === activeCategory
+        )
+  ).slice(0, 4);
 
   return (
     <section className="py-24">
@@ -77,8 +85,8 @@ export default function ExploreProductsSection() {
               <button
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`whitespace-nowrap text-sm transition ${
-                  activeCategory === category ? "font-bold text-[#774EFC]" : "text-gray-500"
+                className={`whitespace-nowrap text-sm transition cursor-pointer ${
+                  activeCategory === category ? "font-bold text-[#774EFC]" : "text-gray-500 hover:text-gray-900"
                 }`}
               >
                 {category}

@@ -12,12 +12,17 @@ import CategorySidebar from "@/components/Product/CategorySidebar";
 import ProductFilter from "@/components/Product/ProductFilter";
 import ProductGrid from "@/components/Product/ProductGrid";
 
+const ALL_CATEGORY = "Semua Produk";
+
 function ProductsContent() {
   const searchParams = useSearchParams();
 
-  const [categoriesList, setCategoriesList] = useState<string[]>(initialCategories);
+  const [categoriesList, setCategoriesList] = useState<string[]>([
+    ALL_CATEGORY,
+    ...initialCategories,
+  ]);
   const [allProducts, setAllProducts] = useState(initialProducts);
-  const [activeCategory, setActiveCategory] = useState(initialCategories[0]);
+  const [activeCategory, setActiveCategory] = useState(ALL_CATEGORY);
   const [activeFilter, setActiveFilter] = useState("Populer");
 
   useEffect(() => {
@@ -31,12 +36,17 @@ function ProductsContent() {
         if (resC.ok) {
           const cats = await resC.json();
           if (Array.isArray(cats) && cats.length > 0) {
-            setCategoriesList(cats);
+            const combinedCats = [
+              ALL_CATEGORY,
+              ...cats.filter((c: string) => c !== ALL_CATEGORY),
+            ];
+            setCategoriesList(combinedCats);
+
             const queryCat = searchParams.get("category");
-            if (queryCat && cats.includes(queryCat)) {
+            if (queryCat && combinedCats.includes(queryCat)) {
               setActiveCategory(queryCat);
             } else {
-              setActiveCategory(cats[0]);
+              setActiveCategory(ALL_CATEGORY);
             }
           }
         }
@@ -54,9 +64,15 @@ function ProductsContent() {
     fetchPublicData();
   }, [searchParams]);
 
-  const filteredProducts = allProducts.filter(
-    (product: any) => product.category === activeCategory
-  );
+  const filteredProducts =
+    activeCategory === ALL_CATEGORY || !activeCategory
+      ? allProducts
+      : allProducts.filter(
+          (product: any) =>
+            (typeof product.category === "string"
+              ? product.category
+              : product.category?.name) === activeCategory
+        );
 
   return (
     <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
