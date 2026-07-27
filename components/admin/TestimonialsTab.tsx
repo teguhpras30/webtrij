@@ -1,4 +1,4 @@
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, User } from "lucide-react";
 
 interface TestimonialsTabProps {
   testimonials: any[];
@@ -28,21 +28,36 @@ export default function TestimonialsTab({ testimonials, onEdit, onDelete }: Test
           </div>
 
           <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
-            <div>
-              <div className="font-semibold text-white text-xs">{t.name}</div>
-              {t.role && <div className="text-[10px] text-slate-400">{t.role}</div>}
+            <div className="flex items-center gap-3 overflow-hidden">
+              {t.avatar ? (
+                <img
+                  src={t.avatar}
+                  alt={t.name}
+                  className="w-9 h-9 rounded-full object-cover border border-slate-700 shrink-0"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 font-bold text-xs shrink-0">
+                  {t.name?.[0] || <User className="w-4 h-4 text-slate-400" />}
+                </div>
+              )}
+              <div className="overflow-hidden">
+                <div className="font-semibold text-white text-xs truncate">{t.name}</div>
+                {t.role && <div className="text-[10px] text-slate-400 truncate">{t.role}</div>}
+              </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               <button
                 onClick={() => onEdit(t)}
                 className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer"
+                title="Edit Testimoni"
               >
                 <Edit className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => onDelete(t.id)}
                 className="p-1.5 text-slate-400 hover:text-red-400 rounded-lg cursor-pointer"
+                title="Hapus Testimoni"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>

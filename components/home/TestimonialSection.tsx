@@ -92,7 +92,17 @@ export default function TestimonialSection({
 
                   {/* User */}
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-[#6B5F5F]" />
+                    {item.avatar ? (
+                      <img
+                        src={item.avatar}
+                        alt={item.name}
+                        className="h-12 w-12 rounded-full object-cover border border-gray-200 shrink-0 shadow-sm"
+                      />
+                    ) : (
+                      <div className="h-12 w-12 rounded-full bg-[#6B5F5F] text-white flex items-center justify-center font-bold text-lg uppercase shrink-0">
+                        {item.name?.[0] || "M"}
+                      </div>
+                    )}
                     <div>
                       <h4 className="text-[24px] font-semibold text-[#1D1D1F]">
                         {item.name}

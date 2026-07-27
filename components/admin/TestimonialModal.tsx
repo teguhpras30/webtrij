@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { X, Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { X, Loader2, Upload, Trash2, User } from "lucide-react";
 
 interface TestimonialModalProps {
   initialData?: any;
@@ -15,8 +15,42 @@ export default function TestimonialModal({ initialData, onClose, onSuccess }: Te
   const [role, setRole] = useState(initialData?.role || "");
   const [review, setReview] = useState(initialData?.review || "");
   const [avatar, setAvatar] = useState(initialData?.avatar || "");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarUpload = async (file: File) => {
+    if (!file) return;
+
+    if (file.size > 1024 * 1024) {
+      setError("Ukuran foto avatar maksimal 1MB.");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal mengunggah foto avatar.");
+
+      setAvatar(data.url);
+    } catch (err: any) {
+      setError(err.message || "Gagal mengunggah foto avatar.");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +104,76 @@ export default function TestimonialModal({ initialData, onClose, onSuccess }: Te
             </select>
           </div>
 
+          {/* Avatar Upload */}
+          <div>
+            <label className="block text-slate-300 mb-1 font-medium">Foto Avatar (Maksimal 1MB)</label>
+            <input
+              type="file"
+              ref={avatarInputRef}
+              accept="image/png, image/jpeg, image/webp, image/gif"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleAvatarUpload(file);
+              }}
+            />
+
+            {avatar ? (
+              <div className="flex items-center gap-3 p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                <img
+                  src={avatar}
+                  alt="Avatar Preview"
+                  className="w-12 h-12 rounded-full object-cover border border-slate-700 shrink-0"
+                />
+                <div className="flex-1 overflow-hidden">
+                  <div className="text-[11px] text-slate-300 truncate">{avatar}</div>
+                  <div className="text-[10px] text-emerald-400">Foto avatar berhasil diunggah</div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                    className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[11px] transition-colors cursor-pointer"
+                  >
+                    Ganti
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAvatar("")}
+                    className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div
+                onClick={() => avatarInputRef.current?.click()}
+                className="border-2 border-dashed border-slate-800 hover:border-red-500/50 bg-slate-950 rounded-xl p-4 text-center cursor-pointer transition-colors"
+              >
+                {uploadingAvatar ? (
+                  <div className="flex items-center justify-center gap-2 text-slate-400 py-2">
+                    <Loader2 className="w-5 h-5 animate-spin text-red-500" />
+                    <span>Mengunggah foto avatar...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-3 py-1 text-slate-400">
+                    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
+                      <User className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-slate-200 font-semibold flex items-center gap-1.5">
+                        <Upload className="w-3.5 h-3.5 text-red-500" /> Unggah Foto Avatar
+                      </div>
+                      <div className="text-[10px] text-slate-500">Klik untuk memilih gambar (Maks. 1MB)</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-slate-300 mb-1 font-medium">Nama Pelanggan *</label>
@@ -116,7 +220,7 @@ export default function TestimonialModal({ initialData, onClose, onSuccess }: Te
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || uploadingAvatar}
               className="px-5 py-2 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-xl flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
