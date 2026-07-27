@@ -1,4 +1,9 @@
 import "./globals.css";
+import { Inter } from "next/font/google";
+import { AuthProvider } from "@/context/AuthContext";
+import { WishlistProvider } from "@/context/WishlistContext";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "TRI J",
@@ -11,8 +16,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" data-scroll-behavior="smooth">
+      <body className={inter.className}>
+        <AuthProvider>
+          <WishlistProvider>{children}</WishlistProvider>
+        </AuthProvider>
+      </body>
     </html>
   );
 }

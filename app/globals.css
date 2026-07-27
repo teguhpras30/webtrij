@@ -1,16 +1,148 @@
 @import "tailwindcss";
 
+/* =========================
+   Fonts
+========================= */
+@font-face {
+  font-family: "MADE Sunflower";
+  src: url("/fonts/MADE-Sunflower.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* =========================
+   Theme
+========================= */
+:root {
+  --Bg: #F2F4F5;
+  --White: #FFFFFF;
+  --Black: #1D1D1F;
+  --Primary: #774EFC;
+}
+
+/* =========================
+   Base
+========================= */
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+  overflow-y: scroll;
 }
 
 body {
-  background: #f5f5f5;
-  color: #111;
+  background: var(--Bg);
+  color: var(--Black);
+  font-family: "Inter", sans-serif;
+  scrollbar-gutter: stable;
 }
+
+
 
 .container {
   max-width: 1280px;
-  margin: auto;
+  margin-inline: auto;
   padding-inline: 20px;
+}
+
+/* =========================
+   animation
+========================= */
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-marquee-left {
+  animation: marquee-left 80s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marquee-right 80s linear infinite;
+}
+
+.animate-marquee-left:hover,
+.animate-marquee-right:hover {
+  animation-play-state: paused;
+}
+
+@keyframes floatSlow {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes floatMedium {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-18px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes floatFast {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: floatMedium 5s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: floatFast 4s ease-in-out infinite;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
