@@ -13,7 +13,6 @@ import {
   LogOut,
   ShieldCheck,
   UserCheck,
-  Lock,
   ChevronRight,
 } from "lucide-react";
 
@@ -213,19 +212,6 @@ export default function Navbar() {
                         >
                           Daftar Akun Baru
                         </button>
-
-                        <div className="pt-2 border-t border-slate-800/80 mt-2">
-                          <Link
-                            href="/secret-login"
-                            onClick={() => setUserDropdownOpen(false)}
-                            className="w-full py-1.5 px-2 flex items-center justify-between text-slate-500 hover:text-slate-300 text-[11px] transition-colors"
-                          >
-                            <span className="flex items-center gap-1.5">
-                              <Lock className="w-3 h-3" /> Secret Admin Portal
-                            </span>
-                            <ChevronRight className="w-3 h-3" />
-                          </Link>
-                        </div>
                       </div>
                     )}
                   </div>
