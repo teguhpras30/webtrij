@@ -99,12 +99,16 @@ export default function Footer() {
 
                     <div className="space-y-2 text-gray-700">
                         <p>Surabaya, Indonesia</p>
-                        <p>hello@trij.com</p>
+                        <p>
+                            <a href="mailto:sales@tri-j.co.id" className="transition-colors hover:text-[#774EFC]">
+                                sales@tri-j.co.id
+                            </a>
+                        </p>
                         <a
-                            href="https://wa.me/6281234567890"
+                            href="https://wa.me/628113300223"
                             target="_blank"
                             rel="noreferrer"
-                            aria-label="Chat WhatsApp di +62 812 3456 7890"
+                            aria-label="Chat WhatsApp di +62 811-3300-223"
                             className="group inline-flex items-center gap-2 transition-colors hover:text-[#25D366]"
                         >
                             <span className="relative h-6 w-6">
@@ -123,7 +127,7 @@ export default function Footer() {
                                     className="opacity-0 transition-opacity group-hover:opacity-100"
                                 />
                             </span>
-                            +62 812 3456 7890
+                            0811 3300 223
                         </a>
                     </div>
                 </div>

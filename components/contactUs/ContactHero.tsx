@@ -4,8 +4,6 @@ import ContactForm from "./ContactForm";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
-
-
 export default function ContactHero() {
     return (
         <section className="pt-28 pb-16 md:pt-36 md:pb-20 lg:pt-40 lg:pb-24">
@@ -62,7 +60,12 @@ export default function ContactHero() {
                             </p>
 
                             <h3 className="break-all text-2xl font-bold sm:text-3xl lg:text-[32px] xl:text-[42px]">
-                                sales@trij.com
+                                <a
+                                    href="mailto:sales@tri-j.co.id"
+                                    className="transition-colors hover:text-[#774EFC]"
+                                >
+                                    sales@tri-j.co.id
+                                </a>
                             </h3>
                         </div>
 
