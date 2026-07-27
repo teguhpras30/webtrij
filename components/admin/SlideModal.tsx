@@ -144,11 +144,11 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
         <div className="mb-4">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <ImageIcon className="w-5 h-5 text-red-500" />
-            <span>{initialData ? "Edit Hero Banner" : "Input Hero Banner Baru"}</span>
+            <span>{initialData ? "Edit Hero Banner Home" : "Input Hero Banner Home Baru"}</span>
           </h2>
           <div className="mt-2 text-xs text-amber-300 bg-amber-500/15 border border-amber-500/30 px-3.5 py-2.5 rounded-xl flex items-center gap-2 font-semibold shadow-xs">
             <Info className="w-4 h-4 shrink-0 text-amber-400" />
-            <span>Ketentuan Gambar Banner: <strong>Upload File Gambar</strong> • Ukuran File <strong>Maksimal 1MB</strong></span>
+            <span>Upload Gambar Banner Home: <strong>Maksimal 1MB per File</strong></span>
           </div>
         </div>
 
@@ -187,7 +187,7 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
           {/* Upload Gambar Desktop */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-slate-300 font-medium">Gambar Desktop (Layar Lebar) *</label>
+              <label className="block text-slate-300 font-medium">Upload Gambar Desktop (Layar Lebar) *</label>
               <span className="text-[10px] text-amber-400 font-semibold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
                 Max 1MB
               </span>
@@ -258,7 +258,7 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
           {/* Upload Gambar Mobile */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-slate-300 font-medium">Gambar Mobile (Layar HP) *</label>
+              <label className="block text-slate-300 font-medium">Upload Gambar Mobile (Layar HP) *</label>
               <span className="text-[10px] text-amber-400 font-semibold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
                 Max 1MB
               </span>
