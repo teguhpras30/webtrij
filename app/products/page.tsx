@@ -75,7 +75,7 @@ function ProductsContent() {
         );
 
   return (
-    <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
+    <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:gap-10">
       <CategorySidebar
         categories={categoriesList}
         activeCategory={activeCategory}
@@ -88,7 +88,7 @@ function ProductsContent() {
           setActiveFilter={setActiveFilter}
         />
 
-        <div className="mt-8">
+        <div className="mt-4 sm:mt-8">
           <ProductGrid products={filteredProducts} />
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function ProductsPage() {
     <main className="min-h-screen bg-[var(--Bg)]">
       <Navbar />
 
-      <section className="mx-auto max-w-[1600px] px-4 pt-24 pb-16 md:px-8 lg:px-10 lg:pt-32 lg:pb-20">
+      <section className="mx-auto max-w-[1600px] px-3.5 sm:px-6 pt-20 sm:pt-24 pb-16 lg:px-10 lg:pt-32 lg:pb-20">
         <Suspense fallback={<div className="text-center py-10">Memuat produk...</div>}>
           <ProductsContent />
         </Suspense>

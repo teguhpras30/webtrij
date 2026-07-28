@@ -5,6 +5,7 @@ import InfoSection from "@/components/home/InfoSection";
 import Showcase from "@/components/home/ShowcaseSection";
 import ProductSection from "@/components/home/ProductsSection";
 import ExploreProductsSection from "@/components/home/ExploreProductsSection";
+import KemitraanSection from "@/components/home/KemitraanSection";
 import TestimonialSection from "@/components/home/TestimonialSection";
 import Footer from "@/components/layout/Footer";
 
@@ -18,6 +19,7 @@ export default function HomePage() {
       <Showcase />
       <ProductSection />
       <ExploreProductsSection />
+      <KemitraanSection />
       <TestimonialSection />
       <Footer />
     </main>

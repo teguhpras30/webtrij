@@ -35,23 +35,23 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group relative mx-auto w-full max-w-[299px] overflow-hidden rounded-[30px] bg-white transition hover:-translate-y-1 shadow-sm border border-gray-100 font-sans">
+    <div className="group relative w-full sm:max-w-[299px] mx-auto overflow-hidden rounded-2xl sm:rounded-[30px] bg-white transition hover:-translate-y-1 shadow-sm border border-gray-100 font-sans flex flex-col justify-between">
       {/* Heart / Wishlist Button - Only shown when user is logged in */}
       {user && (
         <button
           onClick={handleWishlistClick}
-          className="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-white/80 backdrop-blur-md border border-gray-100 shadow-md hover:scale-110 transition-all cursor-pointer"
+          className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 z-20 p-2 sm:p-2.5 rounded-full bg-white/80 backdrop-blur-md border border-gray-100 shadow-md hover:scale-110 transition-all cursor-pointer"
           title={active ? "Hapus dari Favorit" : "Tambah ke Favorit"}
         >
           <Heart
-            className={`w-4 h-4 transition-colors ${
+            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-colors ${
               active ? "fill-rose-500 text-rose-500" : "text-gray-400 hover:text-rose-500"
             }`}
           />
         </button>
       )}
 
-      <Link href={`/products/${product.id}`}>
+      <Link href={`/products/${product.id}`} className="block">
         <div className="relative aspect-square w-full overflow-hidden bg-gray-50 flex items-center justify-center">
           <img
             src={imgSrc}
@@ -66,28 +66,30 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         </div>
 
-        <div className="px-5 pt-5">
-          <h3 className="truncate text-[18px] font-semibold text-[#1D1D1F]">
+        <div className="p-3 sm:pt-5 sm:px-5">
+          <h3 className="line-clamp-1 text-xs sm:text-[18px] font-semibold text-[#1D1D1F]">
             {product.name}
           </h3>
 
-          <p className="mt-1 truncate text-sm text-[#666]">
+          <p className="mt-0.5 sm:mt-1 line-clamp-1 text-[11px] sm:text-sm text-[#666]">
             {product.description}
           </p>
         </div>
       </Link>
 
-      <div className="flex items-center justify-between px-5 pb-5 pt-5">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-1.5 sm:gap-2 p-3 sm:px-5 sm:pb-5 sm:pt-4">
         <Link
           href="/contact-us"
-          className="rounded-[16px] bg-[#774EFC] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#774EFC]/80"
+          className="w-full sm:w-auto rounded-xl sm:rounded-[16px] bg-[#774EFC] px-3 py-2 sm:px-5 sm:py-3 text-xs sm:text-sm font-semibold text-white transition hover:bg-[#774EFC]/80 text-center"
         >
           Get Best Price
         </Link>
 
-        <span className="whitespace-nowrap text-sm text-[#666]">
-          {product.sold}
-        </span>
+        {product.sold && (
+          <span className="whitespace-nowrap text-[10px] sm:text-sm text-[#666] text-right sm:text-left">
+            {product.sold}
+          </span>
+        )}
       </div>
     </div>
   );

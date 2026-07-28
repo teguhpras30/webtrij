@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCardBig from "@/components/home/ProductCardBig";
 import { allProducts as initialProducts } from "@/data/Products";
 import { motion } from "framer-motion";
@@ -105,21 +106,21 @@ export default function ProductsSection() {
             </div>
 
             {/* Navigation */}
-            <div className="flex gap-4">
+            <div className="flex items-center gap-3">
               <button
                 onClick={scrollPrev}
                 aria-label="Previous products"
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1D1D1F] text-white transition hover:bg-[#333] active:scale-95"
+                className="group flex h-12 w-12 items-center justify-center rounded-full border border-slate-300/80 bg-white text-[#1D1D1F] shadow-sm transition-all duration-300 hover:border-[#774EFC] hover:bg-[#774EFC] hover:text-white hover:shadow-lg hover:shadow-[#774EFC]/30 active:scale-95"
               >
-                ←
+                <ChevronLeft className="h-5 w-5 transition-transform duration-300 group-hover:-translate-x-0.5" />
               </button>
 
               <button
                 onClick={scrollNext}
                 aria-label="Next products"
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1D1D1F] text-white transition hover:bg-[#333] active:scale-95"
+                className="group flex h-12 w-12 items-center justify-center rounded-full border border-slate-300/80 bg-white text-[#1D1D1F] shadow-sm transition-all duration-300 hover:border-[#774EFC] hover:bg-[#774EFC] hover:text-white hover:shadow-lg hover:shadow-[#774EFC]/30 active:scale-95"
               >
-                →
+                <ChevronRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5" />
               </button>
             </div>
           </div>
