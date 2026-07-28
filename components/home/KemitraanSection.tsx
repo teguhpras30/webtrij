@@ -29,7 +29,7 @@ export default function KemitraanSection() {
             icon: RotateCcw,
             title: "Garansi Retur & Ganti Baru",
             description:
-                "Jaminan kualitas pasokan stok berkelanjutan. Jika terdapat barang cacat produksi, kami siap mengganti dengan unit baru.",
+                "Jaminan kualitas pasokan stok berkelanjutan. Jika terdapat barang cacat produksi, kami siap mengganti dengan unit baru. Syarat & ketentuan berlaku*",
             badge: "Bebas Risiko",
         },
         {
