@@ -57,7 +57,7 @@ export default function CategorySidebar({
                 onClick={() => handleCategoryClick(category, idx)}
                 className={`flex-none whitespace-nowrap rounded-full px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-[#774EFC] text-white shadow-sm shadow-[#774EFC]/30 font-semibold"
+                    ? "bg-[#774EFC] text-white font-semibold"
                     : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 active:scale-95"
                 }`}
               >
@@ -70,7 +70,7 @@ export default function CategorySidebar({
 
       {/* Desktop Sidebar */}
       <aside className="hidden w-[240px] shrink-0 lg:block">
-        <div className="sticky top-28 bg-white border border-gray-200/80 rounded-2xl p-4 shadow-sm">
+        <div className="sticky top-28 bg-white border border-gray-200/80 rounded-2xl p-4">
           <h3 className="font-semibold text-xs uppercase tracking-wider text-gray-400 mb-3 px-2">
             Kategori Produk
           </h3>
@@ -84,7 +84,7 @@ export default function CategorySidebar({
                   onClick={() => setActiveCategory(category)}
                   className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-medium transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? "bg-[#774EFC] text-white shadow-md shadow-[#774EFC]/20 font-semibold"
+                      ? "bg-[#774EFC] text-white font-semibold"
                       : "text-[#333] hover:bg-gray-100/80 hover:text-[#1D1D1F]"
                   }`}
                 >

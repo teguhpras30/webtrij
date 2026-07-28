@@ -12,7 +12,7 @@ export default function ProductFilter({
   setActiveFilter,
 }: ProductFilterProps) {
   return (
-    <div className="flex items-center justify-between gap-2 rounded-2xl bg-white border border-gray-200/80 p-2 sm:p-3 shadow-sm">
+    <div className="flex items-center justify-between gap-2 rounded-2xl bg-white border border-gray-200/80 p-2 sm:p-3">
       <div className="flex items-center gap-1.5 sm:gap-2">
         <span className="text-xs sm:text-sm font-medium text-gray-500 pl-1 sm:pl-2">
           Urutkan:
