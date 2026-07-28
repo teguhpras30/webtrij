@@ -35,7 +35,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group relative w-full sm:max-w-[299px] mx-auto overflow-hidden rounded-2xl sm:rounded-[30px] bg-white transition hover:-translate-y-1 shadow-sm border border-gray-100 font-sans flex flex-col justify-between">
+    <div className="group relative w-full sm:max-w-[299px] mx-auto overflow-hidden rounded-2xl sm:rounded-[30px] bg-white transition hover:-translate-y-1 border border-gray-100 font-sans flex flex-col justify-between">
       {/* Heart / Wishlist Button - Only shown when user is logged in */}
       {user && (
         <button
