@@ -33,7 +33,7 @@ export default function HeroSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: true,
-      align: "start",
+      align: "center",
       skipSnaps: false,
       duration: 25,
     },
@@ -72,29 +72,61 @@ export default function HeroSection() {
   const currentSlide = slides[safeIndex] || slides[0];
 
   return (
-    <section className="relative h-screen overflow-hidden bg-[#F5F5F5]">
+    <section className="relative h-[100dvh] overflow-hidden bg-[#F5F5F5]">
       {/* Carousel Container with GPU hardware acceleration */}
       <div className="h-full overflow-hidden touch-pan-y" ref={emblaRef}>
         <div className="flex h-full will-change-transform">
-          {slides.map((slide) => (
-            <div key={slide.id} className="relative min-w-full h-full flex-none">
-              {/* Picture tag for single-image responsive decoding on mobile */}
-              <picture className="w-full h-full block">
-                <source media="(min-width: 1024px)" srcSet={slide.desktopImage} />
+          {slides.map((slide, index) => {
+            const staticSlide = initialHeroSlides[index] || initialHeroSlides[0];
+
+            // Resolve mobile image (bypass broken DB paths hp7, hp12, hp18, etc.)
+            const isBrokenMobile =
+              !slide.mobileImage ||
+              slide.mobileImage.includes("hp7") ||
+              slide.mobileImage.includes("hp12") ||
+              slide.mobileImage.includes("hp18");
+            const mobileImgSrc = isBrokenMobile
+              ? staticSlide.mobileImage
+              : slide.mobileImage;
+
+            // Resolve desktop image
+            const isBrokenDesktop =
+              !slide.desktopImage ||
+              slide.desktopImage.includes("image9") ||
+              slide.desktopImage.includes("image23") ||
+              slide.desktopImage.includes("image22");
+            const desktopImgSrc = isBrokenDesktop
+              ? staticSlide.desktopImage
+              : slide.desktopImage;
+
+            return (
+              <div key={slide.id || index} className="relative min-w-full h-full flex-none flex items-center justify-center">
+                {/* Desktop Banner */}
                 <img
-                  src={slide.mobileImage || slide.desktopImage}
+                  src={desktopImgSrc}
                   alt={slide.title}
                   loading="eager"
                   decoding="async"
-                  className="w-full h-full object-cover"
+                  className="hidden w-full h-full object-cover object-center lg:block"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      "https://placehold.co/800x1200?text=Hero+Banner";
+                    (e.target as HTMLImageElement).src = staticSlide.desktopImage;
                   }}
                 />
-              </picture>
-            </div>
-          ))}
+
+                {/* Mobile Banner - object-center positions image centered on HP */}
+                <img
+                  src={mobileImgSrc}
+                  alt={slide.title}
+                  loading="eager"
+                  decoding="async"
+                  className="block w-full h-full object-cover object-center lg:hidden"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = staticSlide.mobileImage;
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
 

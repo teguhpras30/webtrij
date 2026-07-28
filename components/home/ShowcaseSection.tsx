@@ -127,7 +127,7 @@ export default function ShowcaseSection() {
                         className="
                         w-[180%]
                         max-w-none
-                        -translate-x-[45%]
+                        -translate-x-1/2
 
                         sm:w-[160%]
                         sm:-translate-x-[38%]

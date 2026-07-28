@@ -16,11 +16,11 @@ export default function HeroDots({
 }: HeroDotsProps) {
     return (
         <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
+            exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="absolute top-[92%] z-20 flex items-center gap-2 left-8 lg:left-16 xl:left-24"
+            className="absolute bottom-10 sm:bottom-8 lg:bottom-auto lg:top-[92%] z-20 flex items-center gap-2 left-5 sm:left-8 lg:left-16 xl:left-24"
         >
             {Array.from({ length: total }).map((_, index) => {
                 const isActive = selectedIndex === index;
@@ -28,9 +28,9 @@ export default function HeroDots({
                     <button
                         key={index}
                         onClick={() => scrollTo(index)}
-                        className={`relative overflow-hidden rounded-full transition-all duration-300 cursor-pointer ${
-                            isActive ? "h-1.5 w-20 bg-black/40" : "h-1.5 w-1.5 bg-black/40"
-                        }`}
+                        className={`relative overflow-hidden rounded-full transition-all duration-300 cursor-pointer ${isActive ? "h-1.5 w-14 sm:w-20 bg-black/30" : "h-1.5 w-1.5 bg-black/30"
+                            }`}
+                        aria-label={`Go to slide ${index + 1}`}
                     >
                         {isActive && (
                             <div

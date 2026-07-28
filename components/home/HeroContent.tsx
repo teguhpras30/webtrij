@@ -12,63 +12,39 @@ export default function HeroContent({
 }: HeroContentProps) {
     return (
         <motion.div
-            initial={{
-                opacity: 0,
-                y: 60,
-            }}
-            animate={{
-                opacity: 1,
-                y: 0,
-            }}
-            exit={{
-                opacity: 0,
-                y: 60,
-            }}
-            transition={{
-                duration: 0.6,
-                ease: "easeOut",
-            }}
-            className="
-                absolute
-               
-                top-[76%]
-                lg:top-[63%]
-                xl:top-[65%]
-                -translate-y-1/2
-
-                left-8
-                lg:left-16
-                xl:left-24
-            "
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="absolute bottom-20 sm:bottom-24 lg:bottom-auto lg:top-[63%] lg:-translate-y-1/2 left-5 sm:left-8 lg:left-16 xl:left-24 right-5 sm:right-auto"
         >
             <div className="max-w-xl lg:max-w-[520px] xl:max-w-xl">
-                <div className="flex max-w-[400px] xl:max-w-[500] items-end">
+                <div className="flex max-w-[400px] xl:max-w-[500px] items-end">
                     <h1
-                        className="font-['MADE_Sunflower'] leading-tight text-[#1D1D1F] text-4xl lg:text-6xl xl:text-7xl"
+                        className="font-['MADE_Sunflower'] leading-tight text-[#1D1D1F] text-3xl sm:text-4xl lg:text-6xl xl:text-7xl drop-shadow-sm"
                         style={{
-                            textShadow: "0 0 2px white, 0 0 90px white, 0 0 100px white",
+                            textShadow: "0 0 2px white, 0 0 40px rgba(255,255,255,0.9)",
                         }}
                     >
                         {title}
                     </h1>
                 </div>
 
-
-                <p className="mt-4 text-lg leading-8 text-[#1D1D1F]">
+                <p className="mt-2.5 sm:mt-3 text-xs sm:text-base lg:text-lg leading-relaxed text-[#1D1D1F] font-medium max-w-md lg:max-w-none">
                     {description}
                 </p>
 
-                <div className="mt-4 flex gap-4">
+                <div className="mt-4 sm:mt-5 flex flex-wrap gap-2.5 sm:gap-4">
                     <Link
                         href="/products"
-                        className="rounded-[20px] bg-[#774EFC] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#774EFC]/80"
+                        className="rounded-[20px] bg-[#774EFC] px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-semibold text-white transition hover:bg-[#6539E4] shadow-md shadow-[#774EFC]/25"
                     >
                         Explore Products
                     </Link>
 
                     <Link
                         href="/contact-us"
-                        className="rounded-[20] border border-#1D1D1F px-5 py-3 font-semibold text-#1D1D1F"
+                        className="rounded-[20px] border border-[#1D1D1F] px-4 py-2.5 sm:px-5 sm:py-3 text-xs sm:text-sm font-semibold text-[#1D1D1F] transition hover:bg-[#1D1D1F] hover:text-white"
                     >
                         Contact Us
                     </Link>
