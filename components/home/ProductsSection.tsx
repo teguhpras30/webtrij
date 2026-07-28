@@ -133,10 +133,13 @@ export default function ProductsSection() {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           {/* Embla Carousel Slider */}
-          <div className="mt-12 overflow-hidden" ref={emblaRef}>
-            <div className="flex py-4 px-2">
+          <div
+            className="mt-12 -mx-5 sm:-mx-10 lg:-mx-20 overflow-hidden px-5 sm:px-10 lg:px-20 py-4"
+            ref={emblaRef}
+          >
+            <div className="flex -ml-6">
               {productsList.map((product: any) => (
-                <div key={product.id} className="flex-none mr-8 last:mr-0">
+                <div key={product.id} className="flex-none pl-6">
                   <ProductCardBig product={product} />
                 </div>
               ))}
