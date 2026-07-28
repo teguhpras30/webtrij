@@ -75,14 +75,11 @@ export default function TestimonialSection({
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           {/* Slider */}
-          <div
-            className="mt-16 -mx-5 sm:-mx-6 md:-mx-10 lg:-mx-12 xl:-mx-20 overflow-hidden px-5 sm:px-6 md:px-10 lg:px-12 xl:px-20 py-4"
-            ref={emblaRef}
-          >
+          <div className="mt-16 overflow-hidden py-4" ref={emblaRef}>
             <div className="flex -ml-6">
               {list.map((item: any, index: number) => (
-                <div key={index} className="flex-none pl-6">
-                  <div className="flex w-[290px] sm:w-[340px] lg:w-[360px] xl:w-[380px] h-[300px] flex-col justify-between rounded-[30px] bg-white p-6 sm:p-8 border border-gray-100/80 shadow-md transition-shadow hover:shadow-lg">
+                <div key={index} className="flex-none w-full md:w-1/2 lg:w-1/3 pl-6">
+                  <div className="flex w-full h-[300px] flex-col justify-between rounded-[30px] bg-white p-6 sm:p-8 border border-gray-100/80 shadow-md transition-shadow hover:shadow-lg">
                     {/* Quote */}
                     <div>
                       <img src="/petik.svg" alt="Quote" width="48" height="48" />
