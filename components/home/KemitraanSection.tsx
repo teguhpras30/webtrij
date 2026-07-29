@@ -202,7 +202,7 @@ export default function KemitraanSection() {
 
                         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                             <a
-                                href="https://wa.me/628113300223?text=Halo%20Sales%20Tri-J,%20saya%20tertarik%20minta%20pricelist%20grosir"
+                                href="https://wa.me/628961656039?text=Halo%20Sales%20Tri-J,%20saya%20tertarik%20minta%20pricelist%20grosir"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-full sm:w-auto bg-[#774EFC] hover:bg-[#6539E4] text-white font-bold py-4 px-8 rounded-full text-base sm:text-lg inline-flex items-center justify-center gap-3 transition-all duration-300 shadow-lg shadow-[#774EFC]/30 hover:scale-[1.02]"

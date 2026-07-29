@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
@@ -5,9 +6,50 @@ import AboutHero from "@/components/aboutUs/AboutHero";
 import AboutSection from "@/components/aboutUs/AboutSection";
 import MarketplaceTestimonial from "@/components/aboutUs/MarketplaceTestimonial";
 
+export const metadata: Metadata = {
+  title: "Tentang Kami - Profil & Sejarah",
+  description:
+    "Pelajari lebih lanjut mengenai profil, komitmen, dan perjalanan TRI J dalam menghadirkan produk peralatan rumah tangga berkualitas tinggi bagi masyarakat Indonesia.",
+  keywords: [
+    "Tentang TRI J",
+    "Profil Perusahaan TRI J",
+    "Produsen Peralatan Rumah Tangga",
+    "Supplier Perabot Indonesia",
+  ],
+  alternates: {
+    canonical: "/about-us",
+  },
+  openGraph: {
+    title: "Tentang Kami - TRI J Peralatan Rumah Tangga",
+    description:
+      "Profil lengkap TRI J sebagai penyedia solusi peralatan rumah tangga terpercaya.",
+    url: "/about-us",
+  },
+};
+
 export default function AboutPage() {
-    return (
-        <main className="relative overflow-hidden bg-[#F2F4F5]">
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tri-j.co.id";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    name: "Tentang Kami | TRI J",
+    description:
+      "Profil dan komitmen TRI J sebagai penyedia peralatan rumah tangga.",
+    url: `${baseUrl}/about-us`,
+    mainEntity: {
+      "@type": "Organization",
+      name: "TRI J",
+      url: baseUrl,
+    },
+  };
+
+  return (
+    <main className="relative overflow-hidden bg-[#F2F4F5]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
             {/* ================= Background Bubble ================= */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">

@@ -105,10 +105,10 @@ export default function Footer() {
                             </a>
                         </p>
                         <a
-                            href="https://wa.me/628113300223"
+                            href="https://wa.me/628961656039"
                             target="_blank"
                             rel="noreferrer"
-                            aria-label="Chat WhatsApp di +62 811-3300-223"
+                            aria-label="Chat WhatsApp di 0896 1656 039"
                             className="group inline-flex items-center gap-2 transition-colors hover:text-[#25D366]"
                         >
                             <span className="relative h-6 w-6">
@@ -127,7 +127,7 @@ export default function Footer() {
                                     className="opacity-0 transition-opacity group-hover:opacity-100"
                                 />
                             </span>
-                            0811 3300 223
+                            0896 1656 039
                         </a>
                     </div>
                 </div>
