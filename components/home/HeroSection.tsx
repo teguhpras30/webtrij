@@ -18,9 +18,12 @@ export default function HeroSection() {
       try {
         const res = await fetch("/api/public/hero-slides");
         if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            setSlides(data);
+          const text = await res.text();
+          if (text) {
+            const data = JSON.parse(text);
+            if (Array.isArray(data) && data.length > 0) {
+              setSlides(data);
+            }
           }
         }
       } catch (err) {
@@ -35,13 +38,13 @@ export default function HeroSection() {
       loop: true,
       align: "center",
       skipSnaps: false,
-      duration: 25,
+      duration: 20,
     },
     [
       Autoplay({
-        delay: 5000,
+        delay: 3800,
         stopOnInteraction: false,
-        stopOnMouseEnter: true,
+        stopOnMouseEnter: false,
       }),
     ]
   );
@@ -63,8 +66,18 @@ export default function HeroSection() {
     onSelect();
     emblaApi.on("select", onSelect);
 
+    // Guaranteed Auto-Slide Interval fallback
+    const timer = setInterval(() => {
+      if (emblaApi.canScrollNext()) {
+        emblaApi.scrollNext();
+      } else {
+        emblaApi.scrollTo(0);
+      }
+    }, 3800);
+
     return () => {
       emblaApi.off("select", onSelect);
+      clearInterval(timer);
     };
   }, [emblaApi]);
 

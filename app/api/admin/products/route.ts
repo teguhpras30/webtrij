@@ -23,6 +23,9 @@ export async function GET() {
       images: {
         orderBy: { sortOrder: "asc" },
       },
+      variants: {
+        orderBy: { id: "asc" },
+      },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -38,7 +41,25 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { name, categoryId, description, sold, thumbnail, images, isPopular, isDeal } = body;
+    const {
+      name,
+      categoryId,
+      description,
+      sold,
+      thumbnail,
+      images,
+      isPopular,
+      isDeal,
+      isBuyerOnly,
+      weightGram,
+      lengthCm,
+      widthCm,
+      heightCm,
+      retailPrice,
+      stock,
+      moq,
+      variants,
+    } = body;
 
     const parsedCatId = Number(categoryId);
 
@@ -68,16 +89,27 @@ export async function POST(req: Request) {
       uniqueSlug = `${baseSlug}-${Date.now()}`;
     }
 
+    const parsedPrice = retailPrice ? Number(retailPrice) : 0;
+    const parsedStock = stock !== undefined && stock !== null ? Number(stock) : 0;
+
     const product = await db.product.create({
       data: {
         name,
         slug: uniqueSlug,
-        categoryId: parsedCatId,
+        category: { connect: { id: parsedCatId } },
         description,
         sold: sold || "0 Terjual",
+        retailPrice: parsedPrice,
+        stock: parsedStock,
+        moq: moq ? Math.max(1, Number(moq)) : 1,
+        weightGram: weightGram ? Number(weightGram) : 1000,
+        lengthCm: lengthCm ? Number(lengthCm) : 20,
+        widthCm: widthCm ? Number(widthCm) : 20,
+        heightCm: heightCm ? Number(heightCm) : 20,
         thumbnail,
         isPopular: Boolean(isPopular),
         isDeal: Boolean(isDeal),
+        isBuyerOnly: Boolean(isBuyerOnly),
         images: {
           create: Array.isArray(images)
             ? images.filter((img: string) => img && img.trim()).map((img: string, idx: number) => ({
@@ -86,10 +118,25 @@ export async function POST(req: Request) {
               }))
             : [],
         },
+        variants: {
+          create: Array.isArray(variants)
+            ? variants
+                .filter((v: any) => v && v.name && v.name.trim())
+                .map((v: any) => ({
+                  groupName: v.groupName ? String(v.groupName).trim() : "WARNA",
+                  name: v.name.trim(),
+                  price: Number(v.price) || parsedPrice || 0,
+                  stock: v.stock !== undefined && v.stock !== null ? Number(v.stock) : 0,
+                  sku: v.sku ? String(v.sku).trim() : null,
+                  image: v.image ? String(v.image).trim() : null,
+                }))
+            : [],
+        },
       },
       include: {
         category: true,
         images: true,
+        variants: true,
       },
     });
 

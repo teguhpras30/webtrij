@@ -48,8 +48,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {}
     setUser(null);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("webtrij_cart");
+        localStorage.removeItem("webtrij_wishlist");
+        localStorage.removeItem("webtrij_user_orders");
+        localStorage.removeItem("webtrij_addresses");
+        localStorage.removeItem("webtrij_user_extra_info");
+        window.dispatchEvent(new Event("webtrij_logout"));
+      } catch (e) {}
+    }
   };
 
   return (

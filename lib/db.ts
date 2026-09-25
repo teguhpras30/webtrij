@@ -7,8 +7,17 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL;
-  const pool = new pg.Pool({ connectionString });
+  const connectionString = process.env.DATABASE_URL || "postgresql://postgres:01470258@localhost:5432/dbtrij";
+  const url = new URL(connectionString);
+  
+  const pool = new pg.Pool({
+    user: decodeURIComponent(url.username),
+    password: String(decodeURIComponent(url.password)),
+    host: url.hostname,
+    port: url.port ? Number(url.port) : 5432,
+    database: url.pathname.replace(/^\//, ""),
+  });
+
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }

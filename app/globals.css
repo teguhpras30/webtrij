@@ -37,8 +37,6 @@ body {
   scrollbar-gutter: stable;
 }
 
-
-
 .container {
   max-width: 1280px;
   margin-inline: auto;
@@ -46,7 +44,47 @@ body {
 }
 
 /* =========================
-   animation
+   Flying Cart Animation & Keyframes
+========================= */
+@keyframes flyToCart {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+  75% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0.18);
+    opacity: 0;
+    border-radius: 50%;
+  }
+}
+
+.animate-fly-to-cart {
+  animation: flyToCart 0.65s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes cartBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.4) rotate(-8deg);
+  }
+  65% {
+    transform: scale(1.2) rotate(8deg);
+  }
+}
+
+.animate-cart-bounce {
+  animation: cartBounce 0.55s ease-in-out;
+}
+
+/* =========================
+   Marquee Animation
 ========================= */
 @keyframes marquee-left {
   from {
@@ -145,4 +183,79 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* =========================
+   Typography & Prose Styles
+========================= */
+.prose {
+  color: #334155;
+  line-height: 1.75;
+  font-size: 1rem;
+}
+
+.prose h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 1.5rem;
+  margin-bottom: 0.6rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+@media (min-width: 768px) {
+  .prose h2 {
+    font-size: 1.65rem;
+  }
+}
+
+.prose h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 1.2rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.prose p {
+  margin-bottom: 0.85rem;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.prose p strong,
+.prose li strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.prose ul {
+  list-style-type: disc !important;
+  list-style-position: inside !important;
+  margin-top: 0.4rem;
+  margin-bottom: 1rem;
+  padding-left: 0.25rem;
+}
+
+.prose ol {
+  list-style-type: decimal !important;
+  list-style-position: inside !important;
+  margin-top: 0.4rem;
+  margin-bottom: 1rem;
+  padding-left: 0.25rem;
+}
+
+.prose li {
+  margin-bottom: 0.25rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
 }

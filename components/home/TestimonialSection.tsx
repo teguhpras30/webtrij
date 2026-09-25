@@ -22,9 +22,12 @@ export default function TestimonialSection({
       try {
         const res = await fetch("/api/public/testimonials");
         if (res.ok) {
-          const data = await res.json();
-          if (data && Array.isArray(data.member) && data.member.length > 0) {
-            setList(data.member);
+          const text = await res.text();
+          if (text) {
+            const data = JSON.parse(text);
+            if (data && Array.isArray(data.member) && data.member.length > 0) {
+              setList(data.member);
+            }
           }
         }
       } catch (err) {

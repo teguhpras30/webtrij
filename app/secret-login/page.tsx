@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Lock, Mail, User, Eye, EyeOff, ShieldCheck, ArrowRight, Loader2, KeyRound } from "lucide-react";
+import { Lock, User, Eye, EyeOff, ShieldCheck, ArrowRight, Loader2, KeyRound } from "lucide-react";
 
 export default function SecretLoginPage() {
   const router = useRouter();
@@ -48,24 +48,20 @@ export default function SecretLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      {/* Dynamic Background Glow Elements */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-red-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-rose-600/20 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen bg-gray-50 text-gray-900 flex items-center justify-center p-4 relative overflow-hidden font-sans">
       <motion.div
         initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-2xl relative z-10"
+        className="w-full max-w-md bg-white border border-gray-200 rounded-3xl p-8 shadow-2xl relative z-10"
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-tr from-red-600 to-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/30">
+          <div className="w-16 h-16 bg-gradient-to-tr from-red-600 to-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-red-500/20">
             <Lock className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Secret Admin Portal</h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Secret Admin Portal</h1>
+          <p className="text-sm text-gray-500 mt-1">
             Web TRI J Data Management System
           </p>
         </div>
@@ -75,9 +71,9 @@ export default function SecretLoginPage() {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="mb-6 bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl flex items-center gap-2"
+            className="mb-6 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl flex items-center gap-2 font-medium"
           >
-            <ShieldCheck className="w-5 h-5 shrink-0 text-red-400" />
+            <ShieldCheck className="w-5 h-5 shrink-0 text-red-600" />
             <span>{error}</span>
           </motion.div>
         )}
@@ -86,11 +82,11 @@ export default function SecretLoginPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Username / Email */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
               Username atau Email
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                 <User className="w-5 h-5" />
               </div>
               <input
@@ -98,7 +94,7 @@ export default function SecretLoginPage() {
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="admin atau admin@trij.com"
-                className="w-full pl-11 pr-4 py-3 bg-slate-950/60 border border-slate-800 focus:border-red-500 focus:ring-1 focus:ring-red-500 rounded-xl text-sm text-white placeholder-slate-500 transition-all outline-none"
+                className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:bg-white rounded-xl text-sm text-gray-900 placeholder-gray-400 transition-all outline-none"
                 required
               />
             </div>
@@ -106,11 +102,11 @@ export default function SecretLoginPage() {
 
           {/* Password */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">
               Secret Password
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                 <KeyRound className="w-5 h-5" />
               </div>
               <input
@@ -118,13 +114,13 @@ export default function SecretLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full pl-11 pr-11 py-3 bg-slate-950/60 border border-slate-800 focus:border-red-500 focus:ring-1 focus:ring-red-500 rounded-xl text-sm text-white placeholder-slate-500 transition-all outline-none"
+                className="w-full pl-11 pr-11 py-3 bg-gray-50 border border-gray-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:bg-white rounded-xl text-sm text-gray-900 placeholder-gray-400 transition-all outline-none"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -150,7 +146,6 @@ export default function SecretLoginPage() {
             )}
           </button>
         </form>
-
       </motion.div>
     </div>
   );

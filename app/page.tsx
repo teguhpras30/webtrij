@@ -11,17 +11,18 @@ import TestimonialSection from "@/components/home/TestimonialSection";
 import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
-  title: "TRI J - Peralatan Rumah Tangga Berkualitas",
+  title: "TRI J - Distributor & Produsen Peralatan Rumah Tangga Terlengkap",
   description:
-    "Jelajahi produk peralatan rumah tangga unggulan dari TRI J. Solusi perabotan berkualitas, tahan lama, dan harga terjangkau untuk hunian dan usaha Anda.",
+    "Situs resmi TRI J (tri-j.co.id). Produsen & distributor peralatan rumah tangga berkualitas tinggi, perabot plastik, rak, lemari, dispenser beras & kebutuhan dapur grosir maupun eceran.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "TRI J - Peralatan Rumah Tangga Berkualitas",
+    title: "TRI J - Distributor & Produsen Peralatan Rumah Tangga Terlengkap",
     description:
-      "Jelajahi katalog perabotan rumah tangga terlengkap dari TRI J. Kualitas terjamin untuk rumah dan kemitraan bisnis.",
+      "Situs resmi TRI J. Katalog perabot rumah tangga terlengkap & kemitraan grosir.",
     url: "/",
+    siteName: "TRI J",
   },
 };
 
@@ -32,30 +33,95 @@ export default function HomePage() {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Organization",
-        "@id": `${baseUrl}/#organization`,
+        "@type": ["Organization", "LocalBusiness"],
+        "@id": `${baseUrl}/#business`,
         name: "TRI J",
+        alternateName: [
+          "Tri J",
+          "tri j",
+          "TRI-J",
+          "Toko TRI J",
+          "TRI J Official",
+          "PT TRI J Indonesia",
+          "TRI J Peralatan Rumah Tangga",
+        ],
         url: baseUrl,
-        logo: `${baseUrl}/favicon.svg`,
+        logo: `${baseUrl}/logotrij.png`,
+        image: `${baseUrl}/logotrij.png`,
         description:
-          "TRI J adalah produsen dan distributor peralatan rumah tangga berkualitas tinggi, fungsional, dan tahan lama.",
+          "TRI J adalah produsen dan distributor resmi peralatan rumah tangga berkualitas tinggi, fungsional, dan tahan lama di Indonesia.",
+        telephone: "+628961656039",
+        email: "sales@tri-j.co.id",
+        priceRange: "$$",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Raya Manukan Wetan No. 60 B 19, Tandes",
+          addressLocality: "Surabaya",
+          addressRegion: "Jawa Timur",
+          postalCode: "60185",
+          addressCountry: "ID",
+        },
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: -7.2575,
+          longitude: 112.7521,
+        },
+        openingHoursSpecification: [
+          {
+            "@type": "OpeningHoursSpecification",
+            dayOfWeek: [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+            ],
+            opens: "08:00",
+            closes: "17:00",
+          },
+        ],
+        contactPoint: {
+          "@type": "ContactPoint",
+          telephone: "+628961656039",
+          contactType: "sales and customer service",
+          areaServed: "ID",
+          availableLanguage: ["Indonesian"],
+        },
+        sameAs: [
+          "https://www.instagram.com/trij.official/",
+          "https://www.facebook.com/61592615336794",
+          "https://wa.me/628961656039",
+        ],
       },
       {
         "@type": "WebSite",
         "@id": `${baseUrl}/#website`,
         url: baseUrl,
         name: "TRI J",
+        alternateName: "TRI J Official Store",
         description: "Peralatan Rumah Tangga Berkualitas & Terpercaya",
         publisher: {
-          "@id": `${baseUrl}/#organization`,
+          "@id": `${baseUrl}/#business`,
         },
         inLanguage: "id-ID",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${baseUrl}/products?search={search_term_string}`,
+          },
+          "query-input": "required name=search_term_string",
+        },
       },
     ],
   };
 
   return (
     <main>
+      <h1 className="sr-only">
+        TRI J - Produsen &amp; Supplier Peralatan Rumah Tangga Berkualitas
+      </h1>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

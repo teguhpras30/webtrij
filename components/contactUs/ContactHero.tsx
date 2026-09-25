@@ -77,7 +77,7 @@ export default function ContactHero() {
 
                             <h3 className="text-2xl font-bold sm:text-3xl lg:text-[32px] xl:text-[42px]">
                                 <a
-                                    href="https://wa.me/628961656039?text=Halo%20Sales%20Tri-J,%20saya%20tertarik%20minta%20pricelist%20grosir"
+                                    href="https://wa.me/628961656039?text=Halo%20Sales%20Tri-J,%20saya%20tertarik%20tanya%20harga%20grosir"
                                     target="_blank"
                                     rel="noreferrer"
                                     aria-label="Chat WhatsApp di 0896 1656 039"

@@ -4,6 +4,8 @@ import { categories as staticCategories } from "@/data/categories";
 import { allProducts as staticProducts } from "@/data/Products";
 import { testimonials as staticMemberTestimonials } from "@/data/testimoniMember";
 import staticTestimonialMarketplace from "@/data/testimonialMarketplace";
+import { parseProductIdFromSlug } from "./slug";
+export { createProductSlug, parseProductIdFromSlug } from "./slug";
 
 export async function getPublicHeroSlides() {
   try {
@@ -38,6 +40,8 @@ export async function getPublicProducts() {
       include: {
         category: true,
         images: { orderBy: { sortOrder: "asc" } },
+        wholesaleTiers: true,
+        variants: true,
       },
       orderBy: { id: "asc" },
     });
@@ -54,6 +58,12 @@ export async function getPublicProducts() {
         images: p.images.map((img) => img.image),
         isPopular: p.isPopular,
         isDeal: p.isDeal,
+        isBuyerOnly: p.isBuyerOnly,
+        retailPrice: p.retailPrice,
+        moq: p.moq,
+        weightGram: p.weightGram,
+        wholesaleTiers: p.wholesaleTiers,
+        variants: p.variants,
       }));
     }
   } catch (e) {
@@ -62,13 +72,18 @@ export async function getPublicProducts() {
   return staticProducts;
 }
 
-export async function getPublicProductById(id: number) {
+export async function getPublicProductById(identifier: number | string) {
+  const id = parseProductIdFromSlug(identifier);
+  if (!id) return null;
+
   try {
     const p = await db.product.findUnique({
       where: { id },
       include: {
         category: true,
         images: { orderBy: { sortOrder: "asc" } },
+        wholesaleTiers: true,
+        variants: true,
       },
     });
 
@@ -84,6 +99,12 @@ export async function getPublicProductById(id: number) {
         images: p.images.map((img) => img.image),
         isPopular: p.isPopular,
         isDeal: p.isDeal,
+        isBuyerOnly: p.isBuyerOnly,
+        retailPrice: p.retailPrice,
+        moq: p.moq,
+        weightGram: p.weightGram,
+        wholesaleTiers: p.wholesaleTiers,
+        variants: p.variants,
       };
     }
   } catch (e) {

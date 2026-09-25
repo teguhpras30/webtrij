@@ -74,34 +74,48 @@ export async function verifySessionToken(token: string): Promise<{ id: number; u
 }
 
 export async function getAuthenticatedUser() {
-  const cookieStore = await cookies();
-  const sessionToken = cookieStore.get(COOKIE_NAME)?.value;
-  if (!sessionToken) return null;
+  try {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get(COOKIE_NAME)?.value;
+    if (!sessionToken) return null;
 
-  const payload = await verifySessionToken(sessionToken);
-  if (!payload) return null;
+    const payload = await verifySessionToken(sessionToken);
+    if (!payload) return null;
 
-  const user = await db.user.findUnique({
-    where: { id: payload.id },
-    select: {
-      id: true,
-      username: true,
-      email: true,
-      name: true,
-      phone: true,
-      avatar: true,
-      role: true,
-      createdAt: true,
-    },
-  });
+    const user = await db.user.findUnique({
+      where: { id: payload.id },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        name: true,
+        phone: true,
+        address: true,
+        avatar: true,
+        role: true,
+        hasPasswordSet: true,
+        createdAt: true,
+      },
+    });
 
-  return user;
+    return user;
+  } catch (e) {
+    return null;
+  }
 }
 
 export async function getAuthenticatedAdmin() {
-  const user = await getAuthenticatedUser();
-  if (!user || !user.role || user.role.trim().toUpperCase() !== "ADMIN") return null;
-  return user;
+  try {
+    const user = await getAuthenticatedUser();
+    if (user && user.role) {
+      const r = String(user.role).trim().toUpperCase();
+      if (r === "ADMIN" || r === "SUPER_ADMIN" || r === "SUPERADMIN") {
+        return user;
+      }
+    }
+  } catch (e) {}
+
+  return null;
 }
 
 export { COOKIE_NAME };

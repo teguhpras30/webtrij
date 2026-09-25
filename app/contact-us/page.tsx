@@ -35,14 +35,27 @@ export default function ContactPage() {
       "Layanan kontak pelanggan dan kemitraan grosir peralatan rumah tangga TRI J.",
     url: `${baseUrl}/contact-us`,
     mainEntity: {
-      "@type": "Organization",
+      "@type": "LocalBusiness",
       name: "TRI J",
       url: baseUrl,
+      telephone: "+628961656039",
+      email: "sales@tri-j.co.id",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Raya Manukan Wetan No. 60 B 19, Tandes",
+        addressLocality: "Surabaya",
+        addressRegion: "Jawa Timur",
+        postalCode: "60185",
+        addressCountry: "ID",
+      },
       contactPoint: {
         "@type": "ContactPoint",
+        telephone: "+628961656039",
         contactType: "customer service",
+        areaServed: "ID",
         availableLanguage: ["Indonesian"],
       },
+      sameAs: ["https://wa.me/628961656039"],
     },
   };
 

@@ -19,15 +19,26 @@ export default function HeroContent({
             className="absolute bottom-20 sm:bottom-24 lg:bottom-auto lg:top-[63%] lg:-translate-y-1/2 left-5 sm:left-8 lg:left-16 xl:left-24 right-5 sm:right-auto"
         >
             <div className="max-w-xl lg:max-w-[520px] xl:max-w-xl">
+                {/* Badges Promo Shopee & TRI J Style */}
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-xs sm:text-sm rounded-full shadow-md shadow-emerald-500/25 border border-emerald-300/40 transform transition hover:scale-105">
+                        <span>🚚 Free Ongkir</span>
+                    </span>
+
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold text-xs sm:text-sm rounded-full shadow-md shadow-amber-500/25 border border-amber-300/40 transform transition hover:scale-105">
+                        <span>⚡ Tanpa Biaya Admin</span>
+                    </span>
+                </div>
+
                 <div className="flex max-w-[400px] xl:max-w-[500px] items-end">
-                    <h1
+                    <h2
                         className="font-['MADE_Sunflower'] leading-tight text-[#1D1D1F] text-3xl sm:text-4xl lg:text-6xl xl:text-7xl drop-shadow-sm"
                         style={{
                             textShadow: "0 0 2px white, 0 0 40px rgba(255,255,255,0.9)",
                         }}
                     >
                         {title}
-                    </h1>
+                    </h2>
                 </div>
 
                 <p className="mt-2.5 sm:mt-3 text-xs sm:text-base lg:text-lg leading-relaxed text-[#1D1D1F] font-medium max-w-md lg:max-w-none">

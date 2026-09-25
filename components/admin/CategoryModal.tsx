@@ -41,36 +41,36 @@ export default function CategoryModal({ initialData, onClose, onSuccess }: Categ
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 relative shadow-2xl">
-        <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 font-sans">
+      <div className="bg-white border border-gray-200 rounded-3xl w-full max-w-md p-6 relative shadow-2xl">
+        <button onClick={onClose} className="absolute top-5 right-5 text-gray-400 hover:text-gray-700 cursor-pointer">
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-bold text-white mb-4">
+        <h2 className="text-lg font-bold text-gray-900 mb-4">
           {initialData ? "Edit Kategori" : "Input Kategori Baru"}
         </h2>
 
-        {error && <div className="mb-4 text-xs text-red-400 bg-red-500/10 p-3 rounded-xl border border-red-500/20">{error}</div>}
+        {error && <div className="mb-4 text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-200">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block text-slate-300 mb-1 font-medium">Nama Kategori *</label>
+            <label className="block text-gray-700 mb-1 font-semibold">Nama Kategori *</label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Contoh: Perabotan Rumah"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-red-500"
+              className="w-full bg-gray-50 border border-gray-200 focus:bg-white rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-red-500"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 cursor-pointer"
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 cursor-pointer font-medium"
             >
               Batal
             </button>

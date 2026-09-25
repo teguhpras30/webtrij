@@ -27,9 +27,30 @@ function slugify(text: string): string {
 async function main() {
   console.log("Starting seeding process...");
 
-  // 0. Seed Admin User
+  // 0. Seed Admin & Customer User
+  const superAdminHash = await bcrypt.hash("secretpassword0147", 10);
+  await prisma.user.upsert({
+    where: { username: "admint" },
+    update: {
+      password: superAdminHash,
+      role: "ADMIN",
+      isVerified: true,
+      hasPasswordSet: true,
+      name: "Super Admin TRI J",
+    },
+    create: {
+      username: "admint",
+      email: "admint@tri-j.co.id",
+      password: superAdminHash,
+      name: "Super Admin TRI J",
+      role: "ADMIN",
+      isVerified: true,
+      hasPasswordSet: true,
+    },
+  });
+
   const defaultPasswordHash = await bcrypt.hash("secretpassword123", 10);
-  const adminUser = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { username: "admin" },
     update: {},
     create: {
@@ -38,13 +59,12 @@ async function main() {
       password: defaultPasswordHash,
       name: "Super Admin",
       role: "ADMIN",
+      isVerified: true,
     },
   });
-  console.log(`[User] Admin user seeded (Username: ${adminUser.username}, Email: ${adminUser.email})`);
 
-  // 0.1 Seed Customer User
   const customerPasswordHash = await bcrypt.hash("user123456", 10);
-  const customerUser = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { username: "pelanggan" },
     update: {},
     create: {
@@ -53,15 +73,11 @@ async function main() {
       password: customerPasswordHash,
       name: "Budi Santoso",
       phone: "08123456789",
-      role: "CUSTOMER",
+      role: "USER",
     },
   });
-  console.log(`[User] Customer user seeded (Username: ${customerUser.username}, Email: ${customerUser.email})`);
 
-
-  // Clear existing testimonials to prevent duplication on re-seeding
   await prisma.testimonial.deleteMany({});
-
 
   // 1. Seed Categories
   const categoryMap = new Map<string, number>();
@@ -77,13 +93,11 @@ async function main() {
       },
     });
     categoryMap.set(catName, category.id);
-    console.log(`[Category] ${category.name} (ID: ${category.id})`);
   }
 
-  // 2. Seed Products and ProductImages
+  // 2. Seed Products & ProductVariants
   const popularSet = new Set<number>(productSections.popular);
   const dealsSet = new Set<number>(productSections.deals);
-
   const usedSlugs = new Set<string>();
 
   for (const p of allProducts) {
@@ -111,6 +125,10 @@ async function main() {
     const isPopular = popularSet.has(p.id);
     const isDeal = dealsSet.has(p.id);
 
+    const retailPrice = p.retailPrice || 145000;
+    const moq = 1;
+    const weightGram = p.weightGram || 1000;
+
     const product = await prisma.product.upsert({
       where: { id: p.id },
       update: {
@@ -122,6 +140,10 @@ async function main() {
         categoryId,
         isPopular,
         isDeal,
+        retailPrice: retailPrice,
+        moq: moq,
+        weightGram: weightGram,
+        stock: 150,
       },
       create: {
         id: p.id,
@@ -133,8 +155,30 @@ async function main() {
         categoryId,
         isPopular,
         isDeal,
+        retailPrice: retailPrice,
+        moq: moq,
+        weightGram: weightGram,
+        stock: 150,
       },
     });
+
+    // Seed Variants
+    await prisma.productVariant.deleteMany({ where: { productId: product.id } });
+
+    if (p.variants && p.variants.length > 0) {
+      await prisma.productVariant.createMany({
+        data: p.variants.map(v => ({
+          productId: product.id,
+          name: v.name,
+          price: v.price,
+          stock: v.stock || 50,
+          image: v.image || p.image
+        }))
+      });
+      console.log(`[Product] #${product.id} ${product.name} (${p.variants.length} Variasi)`);
+    } else {
+      console.log(`[Product] #${product.id} ${product.name} - Rp ${retailPrice.toLocaleString('id-ID')}`);
+    }
 
     // Refresh images
     await prisma.productImage.deleteMany({
@@ -150,8 +194,6 @@ async function main() {
         })),
       });
     }
-
-    console.log(`[Product] #${product.id} ${product.name}`);
   }
 
   // 3. Seed HeroSlides
@@ -173,9 +215,8 @@ async function main() {
       },
     });
   }
-  console.log(`[HeroSlide] Seeded ${heroSlides.length} slides`);
 
-  // 4. Seed Member Testimonials
+  // 4. Seed Testimonials
   for (const m of memberTestimonials) {
     await prisma.testimonial.create({
       data: {
@@ -187,7 +228,6 @@ async function main() {
     });
   }
 
-  // Seed Marketplace Testimonials
   for (const mp of testimonialMarketplace) {
     await prisma.testimonial.create({
       data: {
@@ -198,17 +238,45 @@ async function main() {
       },
     });
   }
-  console.log("[Testimonial] Seeded member & marketplace testimonials");
 
-  // Reset PostgreSQL sequences to max(id)
+  // 5. Seed Blog Posts
+  const { blogPosts } = require("../data/blogPosts");
+  for (const b of blogPosts) {
+    await prisma.blogPost.upsert({
+      where: { slug: b.slug },
+      update: {
+        title: b.title,
+        excerpt: b.excerpt,
+        content: b.content,
+        coverImage: b.coverImage || null,
+        date: b.date,
+        readTime: b.readTime,
+        author: b.author,
+        category: b.category,
+        tags: b.tags || [],
+        isHighlight: !!b.isHighlight,
+      },
+      create: {
+        slug: b.slug,
+        title: b.title,
+        excerpt: b.excerpt,
+        content: b.content,
+        coverImage: b.coverImage || null,
+        date: b.date,
+        readTime: b.readTime,
+        author: b.author,
+        category: b.category,
+        tags: b.tags || [],
+        isHighlight: !!b.isHighlight,
+      },
+    });
+  }
+
+  // Reset sequences
   await prisma.$executeRawUnsafe(`SELECT setval(pg_get_serial_sequence('"Product"', 'id'), coalesce(max(id), 1)) FROM "Product";`);
   await prisma.$executeRawUnsafe(`SELECT setval(pg_get_serial_sequence('"Category"', 'id'), coalesce(max(id), 1)) FROM "Category";`);
-  await prisma.$executeRawUnsafe(`SELECT setval(pg_get_serial_sequence('"HeroSlide"', 'id'), coalesce(max(id), 1)) FROM "HeroSlide";`);
-  await prisma.$executeRawUnsafe(`SELECT setval(pg_get_serial_sequence('"Testimonial"', 'id'), coalesce(max(id), 1)) FROM "Testimonial";`);
-  await prisma.$executeRawUnsafe(`SELECT setval(pg_get_serial_sequence('"User"', 'id'), coalesce(max(id), 1)) FROM "User";`);
-  console.log("PostgreSQL auto-increment sequences resynchronized!");
 
-  console.log("Seeding completed successfully!");
+  console.log("Seeding variants completed successfully!");
 }
 
 main()

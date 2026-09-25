@@ -48,24 +48,43 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
     return data.url;
   };
 
+  const [uploadStatus, setUploadStatus] = useState<{
+    percent: number;
+    fileName: string;
+    title: string;
+  } | null>(null);
+
   // Desktop image upload handler with 1MB check
   const handleDesktopImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 1 * 1024 * 1024) {
-      setError(`Ukuran file '${file.name}' melebihi 1MB (Ukuran: ${(file.size / (1024 * 1024)).toFixed(2)}MB). Maksimal ukuran gambar adalah 1MB.`);
+    if (file.size > 15 * 1024 * 1024) {
+      setError(`Ukuran file '${file.name}' melebihi batas 15MB.`);
       if (desktopInputRef.current) desktopInputRef.current.value = "";
       return;
     }
 
     setUploadingDesktop(true);
     setError("");
+    setUploadStatus({
+      percent: 50,
+      fileName: file.name,
+      title: "Mengunggah & Mengompres Banner Desktop",
+    });
+
     try {
       const url = await uploadFile(file);
       setDesktopImage(url);
+      setUploadStatus({
+        percent: 100,
+        fileName: file.name,
+        title: "Banner Desktop Berhasil Diunggah! ✨",
+      });
+      setTimeout(() => setUploadStatus(null), 2000);
     } catch (err: any) {
       setError(err.message || "Gagal mengunggah gambar desktop.");
+      setUploadStatus(null);
     } finally {
       setUploadingDesktop(false);
       if (desktopInputRef.current) desktopInputRef.current.value = "";
@@ -77,19 +96,32 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 1 * 1024 * 1024) {
-      setError(`Ukuran file '${file.name}' melebihi 1MB (Ukuran: ${(file.size / (1024 * 1024)).toFixed(2)}MB). Maksimal ukuran gambar adalah 1MB.`);
+    if (file.size > 15 * 1024 * 1024) {
+      setError(`Ukuran file '${file.name}' melebihi batas 15MB.`);
       if (mobileInputRef.current) mobileInputRef.current.value = "";
       return;
     }
 
     setUploadingMobile(true);
     setError("");
+    setUploadStatus({
+      percent: 50,
+      fileName: file.name,
+      title: "Mengunggah & Mengompres Banner Mobile",
+    });
+
     try {
       const url = await uploadFile(file);
       setMobileImage(url);
+      setUploadStatus({
+        percent: 100,
+        fileName: file.name,
+        title: "Banner Mobile Berhasil Diunggah! ✨",
+      });
+      setTimeout(() => setUploadStatus(null), 2000);
     } catch (err: any) {
       setError(err.message || "Gagal mengunggah gambar mobile.");
+      setUploadStatus(null);
     } finally {
       setUploadingMobile(false);
       if (mobileInputRef.current) mobileInputRef.current.value = "";
@@ -135,60 +167,88 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 relative shadow-2xl my-8">
-        <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-white cursor-pointer transition">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto font-sans">
+      <div className="bg-white border border-gray-200 rounded-3xl w-full max-w-lg p-6 relative shadow-2xl my-8">
+        <button onClick={onClose} className="absolute top-5 right-5 text-gray-400 hover:text-gray-700 cursor-pointer transition">
           <X className="w-5 h-5" />
         </button>
 
         <div className="mb-4">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <ImageIcon className="w-5 h-5 text-red-500" />
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <ImageIcon className="w-5 h-5 text-red-600" />
             <span>{initialData ? "Edit Hero Banner Home" : "Input Hero Banner Home Baru"}</span>
           </h2>
-          <div className="mt-2 text-xs text-amber-300 bg-amber-500/15 border border-amber-500/30 px-3.5 py-2.5 rounded-xl flex items-center gap-2 font-semibold shadow-xs">
-            <Info className="w-4 h-4 shrink-0 text-amber-400" />
+          <div className="mt-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 px-3.5 py-2.5 rounded-xl flex items-center gap-2 font-semibold shadow-xs">
+            <Info className="w-4 h-4 shrink-0 text-amber-600" />
             <span>Upload Gambar Banner Home: <strong>Maksimal 1MB per File</strong></span>
           </div>
         </div>
 
+        {/* Upload Progress Status Card */}
+        {uploadStatus && (
+          <div className="mb-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white p-3.5 px-4 rounded-2xl flex items-center justify-between shadow-lg animate-in fade-in duration-200">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 backdrop-blur-md rounded-xl">
+                <Loader2 className="w-5 h-5 animate-spin text-amber-300" />
+              </div>
+              <div>
+                <div className="font-extrabold text-xs">
+                  {uploadStatus.title}
+                </div>
+                <div className="text-[11px] text-purple-100 font-mono mt-0.5 max-w-xs truncate">
+                  📁 {uploadStatus.fileName}
+                </div>
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="font-black text-sm text-amber-300">{uploadStatus.percent}%</div>
+              <div className="w-24 bg-purple-950/40 rounded-full h-2 mt-1 overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-amber-300 to-emerald-400 h-full transition-all duration-300 rounded-full"
+                  style={{ width: `${uploadStatus.percent}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {error && (
-          <div className="mb-4 text-xs text-red-400 bg-red-500/10 p-3 rounded-xl border border-red-500/20 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+          <div className="mb-4 text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 flex items-center gap-2 font-medium">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
             <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block text-slate-300 mb-1 font-medium">Judul Banner *</label>
+            <label className="block text-gray-700 mb-1 font-semibold">Judul Banner *</label>
             <input
               type="text"
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Judul Promosi Banner"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-red-500"
+              className="w-full bg-gray-50 border border-gray-200 focus:bg-white rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-red-500"
             />
           </div>
 
           <div>
-            <label className="block text-slate-300 mb-1 font-medium">Deskripsi Singkat *</label>
+            <label className="block text-gray-700 mb-1 font-semibold">Deskripsi Singkat *</label>
             <textarea
               required
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Deskripsi promo hero banner..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-red-500"
+              className="w-full bg-gray-50 border border-gray-200 focus:bg-white rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:border-red-500"
             />
           </div>
 
           {/* Upload Gambar Desktop */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-slate-300 font-medium">Upload Gambar Desktop (Layar Lebar) *</label>
-              <span className="text-[10px] text-amber-400 font-semibold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+              <label className="block text-gray-700 font-semibold">Upload Gambar Desktop (Layar Lebar) *</label>
+              <span className="text-[10px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
                 Max 1MB
               </span>
             </div>
@@ -201,18 +261,18 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
             />
 
             {desktopImage ? (
-              <div className="relative group w-full h-32 bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden flex items-center justify-center p-2">
+              <div className="relative group w-full h-32 bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden flex items-center justify-center p-2">
                 <img
                   src={desktopImage}
                   alt="Desktop Banner Preview"
                   className="max-h-full max-w-full object-contain rounded-xl"
                 />
-                <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-xs">
+                <div className="absolute inset-0 bg-gray-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-xs">
                   <button
                     type="button"
                     onClick={() => desktopInputRef.current?.click()}
                     disabled={uploadingDesktop}
-                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                    className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer hover:bg-gray-100"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Ganti Gambar</span>
@@ -227,8 +287,8 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
                   </button>
                 </div>
                 {uploadingDesktop && (
-                  <div className="absolute inset-0 bg-slate-950/80 flex items-center justify-center gap-2 text-white">
-                    <Loader2 className="w-5 h-5 animate-spin text-red-500" />
+                  <div className="absolute inset-0 bg-white/80 flex items-center justify-center gap-2 text-gray-900 font-semibold">
+                    <Loader2 className="w-5 h-5 animate-spin text-red-600" />
                     <span className="text-xs">Mengunggah...</span>
                   </div>
                 )}
@@ -236,20 +296,20 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
             ) : (
               <label
                 onClick={() => desktopInputRef.current?.click()}
-                className={`w-full h-28 border-2 border-dashed border-slate-700 hover:border-red-500/60 bg-slate-950/60 hover:bg-slate-900/80 rounded-2xl flex flex-col items-center justify-center gap-1.5 cursor-pointer transition p-4 text-center ${
+                className={`w-full h-28 border-2 border-dashed border-gray-300 hover:border-red-500 bg-gray-50/60 hover:bg-gray-100/80 rounded-2xl flex flex-col items-center justify-center gap-1.5 cursor-pointer transition p-4 text-center ${
                   uploadingDesktop ? "opacity-50 pointer-events-none" : ""
                 }`}
               >
                 {uploadingDesktop ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-red-500" />
+                  <Loader2 className="w-5 h-5 animate-spin text-red-600" />
                 ) : (
-                  <Upload className="w-5 h-5 text-slate-400 group-hover:text-red-400" />
+                  <Upload className="w-5 h-5 text-gray-400 group-hover:text-red-600" />
                 )}
                 <div>
-                  <span className="font-semibold text-slate-200 block text-xs">
+                  <span className="font-semibold text-gray-700 block text-xs">
                     {uploadingDesktop ? "Mengunggah gambar..." : "Klik untuk Upload Gambar Desktop"}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-medium">Format JPG, PNG, WEBP (Max 1MB)</span>
+                  <span className="text-[10px] text-gray-500 font-medium">Format JPG, PNG, WEBP (Max 1MB)</span>
                 </div>
               </label>
             )}
@@ -258,8 +318,8 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
           {/* Upload Gambar Mobile */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-slate-300 font-medium">Upload Gambar Mobile (Layar HP) *</label>
-              <span className="text-[10px] text-amber-400 font-semibold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+              <label className="block text-gray-700 font-semibold">Upload Gambar Mobile (Layar HP) *</label>
+              <span className="text-[10px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
                 Max 1MB
               </span>
             </div>
@@ -272,18 +332,18 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
             />
 
             {mobileImage ? (
-              <div className="relative group w-full h-32 bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden flex items-center justify-center p-2">
+              <div className="relative group w-full h-32 bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden flex items-center justify-center p-2">
                 <img
                   src={mobileImage}
                   alt="Mobile Banner Preview"
                   className="max-h-full max-w-full object-contain rounded-xl"
                 />
-                <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-xs">
+                <div className="absolute inset-0 bg-gray-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-xs">
                   <button
                     type="button"
                     onClick={() => mobileInputRef.current?.click()}
                     disabled={uploadingMobile}
-                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                    className="px-3 py-1.5 bg-white text-gray-800 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer hover:bg-gray-100"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Ganti Gambar</span>
@@ -298,8 +358,8 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
                   </button>
                 </div>
                 {uploadingMobile && (
-                  <div className="absolute inset-0 bg-slate-950/80 flex items-center justify-center gap-2 text-white">
-                    <Loader2 className="w-5 h-5 animate-spin text-red-500" />
+                  <div className="absolute inset-0 bg-white/80 flex items-center justify-center gap-2 text-gray-900 font-semibold">
+                    <Loader2 className="w-5 h-5 animate-spin text-red-600" />
                     <span className="text-xs">Mengunggah...</span>
                   </div>
                 )}
@@ -307,20 +367,20 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
             ) : (
               <label
                 onClick={() => mobileInputRef.current?.click()}
-                className={`w-full h-28 border-2 border-dashed border-slate-700 hover:border-red-500/60 bg-slate-950/60 hover:bg-slate-900/80 rounded-2xl flex flex-col items-center justify-center gap-1.5 cursor-pointer transition p-4 text-center ${
+                className={`w-full h-28 border-2 border-dashed border-gray-300 hover:border-red-500 bg-gray-50/60 hover:bg-gray-100/80 rounded-2xl flex flex-col items-center justify-center gap-1.5 cursor-pointer transition p-4 text-center ${
                   uploadingMobile ? "opacity-50 pointer-events-none" : ""
                 }`}
               >
                 {uploadingMobile ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-red-500" />
+                  <Loader2 className="w-5 h-5 animate-spin text-red-600" />
                 ) : (
-                  <Upload className="w-5 h-5 text-slate-400 group-hover:text-red-400" />
+                  <Upload className="w-5 h-5 text-gray-400 group-hover:text-red-600" />
                 )}
                 <div>
-                  <span className="font-semibold text-slate-200 block text-xs">
+                  <span className="font-semibold text-gray-700 block text-xs">
                     {uploadingMobile ? "Mengunggah gambar..." : "Klik untuk Upload Gambar Mobile"}
                   </span>
-                  <span className="text-[10px] text-slate-400 font-medium">Format JPG, PNG, WEBP (Max 1MB)</span>
+                  <span className="text-[10px] text-gray-500 font-medium">Format JPG, PNG, WEBP (Max 1MB)</span>
                 </div>
               </label>
             )}
@@ -328,12 +388,12 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
 
           <div className="flex items-center justify-between">
             <div className="w-1/2 pr-2">
-              <label className="block text-slate-300 mb-1 font-medium">Urutan Tampil</label>
+              <label className="block text-gray-700 mb-1 font-semibold">Urutan Tampil</label>
               <input
                 type="number"
                 value={sortOrder}
                 onChange={(e) => setSortOrder(Number(e.target.value))}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-red-500"
+                className="w-full bg-gray-50 border border-gray-200 focus:bg-white rounded-xl px-3 py-2 text-gray-900 focus:outline-none focus:border-red-500 font-semibold"
               />
             </div>
             <div className="w-1/2 pt-5">
@@ -342,18 +402,18 @@ export default function SlideModal({ initialData, onClose, onSuccess }: SlideMod
                   type="checkbox"
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
-                  className="rounded border-slate-800 text-red-600 focus:ring-red-500"
+                  className="rounded border-gray-300 text-red-600 focus:ring-red-500"
                 />
-                <span className="text-slate-300 font-medium">Status Banner Aktif</span>
+                <span className="text-gray-700 font-semibold">Status Banner Aktif</span>
               </label>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700 cursor-pointer"
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 cursor-pointer font-medium"
             >
               Batal
             </button>

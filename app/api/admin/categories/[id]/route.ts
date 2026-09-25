@@ -55,15 +55,17 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const productCount = await db.product.count({ where: { categoryId } });
     if (productCount > 0) {
       return NextResponse.json(
-        { error: `Tidak bisa menghapus. Masih ada ${productCount} produk terhubung ke kategori ini.` },
+        {
+          error: `Kategori ini sedang digunakan oleh ${productCount} produk dan tidak dapat dihapus. Silakan hapus atau pindahkan produk terkait terlebih dahulu.`,
+        },
         { status: 400 }
       );
     }
 
     await db.category.delete({ where: { id: categoryId } });
     return NextResponse.json({ success: true, message: "Kategori berhasil dihapus." });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Delete category error:", error);
-    return NextResponse.json({ error: "Gagal menghapus kategori." }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Gagal menghapus kategori." }, { status: 500 });
   }
 }

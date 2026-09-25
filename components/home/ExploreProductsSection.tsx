@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { allProducts as initialProducts } from "@/data/Products";
 import { categories as initialCategories } from "@/data/categories";
 import ProductCard from "@/components/home/ProductCard";
@@ -9,6 +10,7 @@ import { motion } from "framer-motion";
 const ALL_CATEGORY = "Semua Produk";
 
 export default function ExploreProductsSection() {
+  const { user } = useAuth();
   const [categoriesList, setCategoriesList] = useState<string[]>([ALL_CATEGORY, ...initialCategories]);
   const [allProducts, setAllProducts] = useState(initialProducts);
   const [activeCategory, setActiveCategory] = useState(ALL_CATEGORY);
@@ -22,16 +24,22 @@ export default function ExploreProductsSection() {
         ]);
 
         if (resC.ok) {
-          const cats = await resC.json();
-          if (Array.isArray(cats) && cats.length > 0) {
-            setCategoriesList([ALL_CATEGORY, ...cats.filter((c: string) => c !== ALL_CATEGORY)]);
+          const textC = await resC.text();
+          if (textC) {
+            const cats = JSON.parse(textC);
+            if (Array.isArray(cats) && cats.length > 0) {
+              setCategoriesList([ALL_CATEGORY, ...cats.filter((c: string) => c !== ALL_CATEGORY)]);
+            }
           }
         }
 
         if (resP.ok) {
-          const prods = await resP.json();
-          if (Array.isArray(prods) && prods.length > 0) {
-            setAllProducts(prods);
+          const textP = await resP.text();
+          if (textP) {
+            const prods = JSON.parse(textP);
+            if (Array.isArray(prods) && prods.length > 0) {
+              setAllProducts(prods);
+            }
           }
         }
       } catch (err) {
@@ -41,16 +49,13 @@ export default function ExploreProductsSection() {
     fetchData();
   }, []);
 
-  const filteredProducts = (
-    activeCategory === ALL_CATEGORY || !activeCategory
-      ? allProducts
-      : allProducts.filter(
-          (product: any) =>
-            (typeof product.category === "string"
-              ? product.category
-              : product.category?.name) === activeCategory
-        )
-  ).slice(0, 4);
+  const filteredProducts = allProducts.filter((product: any) => {
+    const matchesCategory =
+      activeCategory === ALL_CATEGORY ||
+      !activeCategory ||
+      (typeof product.category === "string" ? product.category : product.category?.name) === activeCategory;
+    return matchesCategory;
+  }).slice(0, 4);
 
   return (
     <section className="py-24">

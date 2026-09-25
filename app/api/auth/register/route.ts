@@ -1,20 +1,22 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { hashPassword, createSessionToken, COOKIE_NAME } from "@/lib/auth";
+import { hashPassword } from "@/lib/auth";
+import { sendWhatsAppOtp, formatWhatsAppNumber } from "@/lib/whatsapp";
 
 export async function POST(req: Request) {
   try {
     const { name, username, email, password, phone } = await req.json();
 
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !phone) {
       return NextResponse.json(
-        { error: "Username, Email, dan Password wajib diisi." },
+        { error: "Nama, Username, Email, Password, dan Nomor WhatsApp wajib diisi." },
         { status: 400 }
       );
     }
 
     const cleanUsername = String(username).trim();
     const cleanEmail = String(email).trim().toLowerCase();
+    const formattedPhone = formatWhatsAppNumber(phone);
 
     if (password.length < 6) {
       return NextResponse.json(
@@ -34,13 +36,43 @@ export async function POST(req: Request) {
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "Username atau Email sudah terdaftar." },
-        { status: 400 }
-      );
+      // If user exists and is already verified, reject duplicate registration
+      if (existingUser.isVerified) {
+        return NextResponse.json(
+          { error: "Username atau Email sudah terdaftar. Silakan login." },
+          { status: 400 }
+        );
+      }
+
+      // If user exists but is not yet verified, generate fresh OTP and resend
+      const freshOtp = Math.floor(1000 + Math.random() * 9000).toString();
+      const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+      await db.user.update({
+        where: { id: existingUser.id },
+        data: {
+          name: name || cleanUsername,
+          phone: formattedPhone,
+          otpCode: freshOtp,
+          otpExpiresAt: otpExpiry,
+        },
+      });
+
+      await sendWhatsAppOtp(formattedPhone, freshOtp, name || cleanUsername);
+
+      return NextResponse.json({
+        success: true,
+        requiresOtp: true,
+        userId: existingUser.id,
+        phone: formattedPhone,
+        message: "Kode OTP verifikasi WhatsApp telah dikirim!",
+        debugOtp: process.env.NODE_ENV !== "production" ? freshOtp : undefined,
+      });
     }
 
     const hashedPassword = await hashPassword(password);
+    const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     const newUser = await db.user.create({
       data: {
@@ -48,40 +80,25 @@ export async function POST(req: Request) {
         username: cleanUsername,
         email: cleanEmail,
         password: hashedPassword,
-        phone: phone || null,
-        role: "CUSTOMER",
+        phone: formattedPhone,
+        role: "USER",
+        isVerified: false, // Requires WhatsApp OTP verification
+        otpCode,
+        otpExpiresAt,
       },
     });
 
-    const token = await createSessionToken({
-      id: newUser.id,
-      username: newUser.username,
-      email: newUser.email,
-    });
+    // Send WhatsApp OTP
+    await sendWhatsAppOtp(formattedPhone, otpCode, newUser.name);
 
-    const response = NextResponse.json({
+    return NextResponse.json({
       success: true,
-      message: "Pendaftaran akun pelanggan berhasil!",
-      user: {
-        id: newUser.id,
-        username: newUser.username,
-        email: newUser.email,
-        name: newUser.name,
-        role: newUser.role,
-      },
+      requiresOtp: true,
+      userId: newUser.id,
+      phone: formattedPhone,
+      message: "Pendaftaran berhasil! Silakan masukkan kode OTP WhatsApp.",
+      debugOtp: process.env.NODE_ENV !== "production" ? otpCode : undefined,
     });
-
-    response.cookies.set({
-      name: COOKIE_NAME,
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-    });
-
-    return response;
   } catch (error: any) {
     console.error("Register error:", error);
     return NextResponse.json(

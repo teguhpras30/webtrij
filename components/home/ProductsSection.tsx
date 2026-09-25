@@ -7,8 +7,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCardBig from "@/components/home/ProductCardBig";
 import { allProducts as initialProducts } from "@/data/Products";
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ProductsSection() {
+  const { user } = useAuth();
   const [allProducts, setAllProducts] = useState(initialProducts);
   const [activeTab, setActiveTab] = useState<"popular" | "deals">("popular");
 
@@ -17,9 +19,12 @@ export default function ProductsSection() {
       try {
         const res = await fetch("/api/public/products");
         if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            setAllProducts(data);
+          const text = await res.text();
+          if (text) {
+            const data = JSON.parse(text);
+            if (Array.isArray(data) && data.length > 0) {
+              setAllProducts(data);
+            }
           }
         }
       } catch (err) {
@@ -29,14 +34,16 @@ export default function ProductsSection() {
     fetchProducts();
   }, []);
 
+  const visibleProducts = allProducts;
+
   const productsList =
     activeTab === "popular"
-      ? allProducts.filter((p: any) => p.isPopular).length > 0
-        ? allProducts.filter((p: any) => p.isPopular)
-        : allProducts
-      : allProducts.filter((p: any) => p.isDeal).length > 0
-      ? allProducts.filter((p: any) => p.isDeal)
-      : [...allProducts].reverse();
+      ? visibleProducts.filter((p: any) => p.isPopular).length > 0
+        ? visibleProducts.filter((p: any) => p.isPopular)
+        : visibleProducts
+      : visibleProducts.filter((p: any) => p.isDeal).length > 0
+      ? visibleProducts.filter((p: any) => p.isDeal)
+      : [...visibleProducts].reverse();
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
