@@ -561,11 +561,9 @@ export default function ProductDetailActions({ product, onVariantChange }: Produ
               combinedVariantName ? { id: activeVariant?.id, name: combinedVariantName, price: activePrice } : undefined
             );
 
-            if (pendingAction === 'buy_now') {
-              setTimeout(() => {
-                router.push('/cart');
-              }, 400);
-            }
+            setTimeout(() => {
+              router.push('/cart');
+            }, 300);
             setPendingAction(null);
           }}
         />
