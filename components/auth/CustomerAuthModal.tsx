@@ -316,7 +316,7 @@ export default function CustomerAuthModal({
           </div>
           <h3 className="text-xl font-black text-gray-900 tracking-tight">
             {tab === "quick-otp"
-              ? "Login & Belanja Cepat WhatsApp"
+              ? "Masukkan Alamat dan Nomor Telepon untuk Pengiriman"
               : tab === "login"
                 ? "Masuk ke Akun Pelanggan"
                 : tab === "register"
@@ -325,7 +325,7 @@ export default function CustomerAuthModal({
           </h3>
           <p className="text-xs text-gray-500 font-medium">
             {tab === "quick-otp"
-              ? "Masukkan Nama Lengkap & No. WA Anda untuk mendaftar/masuk via OTP."
+              ? "Lengkapi Nama, Nomor WhatsApp, & Alamat Anda untuk kemudahan pengiriman."
               : tab === "login"
                 ? "Akses kemudahan belanja & lacak status pesanan Anda."
                 : tab === "register"
@@ -445,16 +445,6 @@ export default function CustomerAuthModal({
         {/* QUICK OTP FORM (Opsi B: Nama + WhatsApp OTP) */}
         {tab === "quick-otp" && (
           <form onSubmit={handleQuickOtpSubmit} className="space-y-3.5 relative z-10">
-            <div className="p-3 bg-emerald-50/80 border border-emerald-200/80 rounded-2xl mb-3 text-xs text-emerald-900 flex items-start gap-2.5">
-              <MessageSquare className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-extrabold text-emerald-800">Verifikasi & Belanja Cepat</p>
-                <p className="text-[11px] text-emerald-700 leading-relaxed">
-                  Masukkan Nama Lengkap & Nomor WhatsApp Anda untuk mendaftar/masuk otomatis via kode OTP.
-                </p>
-              </div>
-            </div>
-
             <div>
               <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">
                 Nama Lengkap <span className="text-red-500">*</span>
