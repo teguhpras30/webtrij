@@ -68,6 +68,11 @@ export async function createMidtransSnapTransaction(params: CreateSnapTransactio
       quantity: item.quantity,
       name: item.name.substring(0, 50),
     })),
+    callbacks: {
+      finish: 'https://tri-j.co.id/user/purchase',
+      error: 'https://tri-j.co.id/user/purchase',
+      pending: 'https://tri-j.co.id/user/purchase',
+    },
   };
 
   console.log('Posting to Midtrans API with ServerKey:', serverKey.substring(0, 12) + '...');
