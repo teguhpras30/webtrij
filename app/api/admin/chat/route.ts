@@ -117,3 +117,45 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Gagal mengirim balasan pesan." }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const admin = await getAuthenticatedAdmin();
+    if (!admin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const roomId = searchParams.get("roomId");
+    const messageId = searchParams.get("messageId");
+
+    if (messageId) {
+      const parsedMsgId = Number(messageId);
+      if (isNaN(parsedMsgId)) {
+        return NextResponse.json({ error: "Message ID tidak valid." }, { status: 400 });
+      }
+      await db.chatMessage.delete({
+        where: { id: parsedMsgId },
+      });
+      return NextResponse.json({ success: true, message: "Pesan berhasil dihapus." });
+    }
+
+    if (roomId) {
+      const parsedRoomId = Number(roomId);
+      if (isNaN(parsedRoomId)) {
+        return NextResponse.json({ error: "Room ID tidak valid." }, { status: 400 });
+      }
+
+      await db.chatRoom.delete({
+        where: { id: parsedRoomId },
+      });
+
+      return NextResponse.json({ success: true, message: "Riwayat chat berhasil dihapus." });
+    }
+
+    return NextResponse.json({ error: "Parameter roomId atau messageId wajib diisi." }, { status: 400 });
+  } catch (error: any) {
+    console.error("Error DELETE /api/admin/chat:", error);
+    return NextResponse.json({ error: "Gagal menghapus chat." }, { status: 500 });
+  }
+}

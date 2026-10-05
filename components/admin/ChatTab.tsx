@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   ChevronDown,
   ChevronUp,
+  Trash2,
 } from "lucide-react";
 
 interface ChatRoom {
@@ -195,6 +196,53 @@ export default function ChatTab() {
     }
   };
 
+  const handleDeleteRoom = async (roomId: number, customerName: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!window.confirm(`Apakah Anda yakin ingin menghapus seluruh riwayat percakapan dengan ${customerName}?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/chat?roomId=${roomId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setRooms((prev) => prev.filter((r) => r.id !== roomId));
+        if (selectedRoom?.id === roomId) {
+          setSelectedRoom(null);
+          setMessages([]);
+        }
+      } else {
+        const data = await res.json();
+        alert(data.error || "Gagal menghapus chat.");
+      }
+    } catch (err) {
+      console.error("Gagal menghapus chat room:", err);
+      alert("Terjadi kesalahan saat menghapus chat.");
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: number) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus pesan ini?")) return;
+
+    try {
+      const res = await fetch(`/api/admin/chat?messageId=${messageId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setMessages((prev) => prev.filter((m) => m.id !== messageId));
+        fetchRooms();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Gagal menghapus pesan.");
+      }
+    } catch (err) {
+      console.error("Gagal menghapus pesan:", err);
+    }
+  };
+
   const filteredRooms = rooms.filter((r) => {
     const name = r.user?.name || r.guestName || `Tamu #${r.id}`;
     const email = r.user?.email || "";
@@ -323,7 +371,7 @@ export default function ChatTab() {
                 <div
                   key={r.id}
                   onClick={() => handleSelectRoom(r)}
-                  className={`p-3.5 transition cursor-pointer flex items-start gap-3 ${
+                  className={`group relative p-3.5 transition cursor-pointer flex items-start gap-3 ${
                     isSelected
                       ? "bg-purple-50/80 border-l-4 border-purple-600"
                       : "hover:bg-slate-100/80 bg-white"
@@ -366,14 +414,24 @@ export default function ChatTab() {
                           </span>
                         )}
                       </div>
-                      <span className="text-[10px] text-slate-400 font-mono shrink-0">
-                        {r.updatedAt
-                          ? new Date(r.updatedAt).toLocaleTimeString("id-ID", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : ""}
-                      </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {r.updatedAt
+                            ? new Date(r.updatedAt).toLocaleTimeString("id-ID", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : ""}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteRoom(r.id, displayName, e)}
+                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-md transition cursor-pointer"
+                          title="Hapus Percakapan"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
 
                     <p
@@ -450,6 +508,16 @@ export default function ChatTab() {
                   </div>
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={() => handleDeleteRoom(selectedRoom.id, selectedRoom.user?.name || selectedRoom.guestName || `Tamu #${selectedRoom.id}`)}
+                className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border border-red-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shrink-0 shadow-2xs"
+                title="Hapus Seluruh Percakapan"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                <span>Hapus Chat</span>
+              </button>
             </div>
 
             {/* Thread Message History (Smooth vertical scroll only) */}
@@ -467,7 +535,7 @@ export default function ChatTab() {
                   return (
                     <div
                       key={m.id}
-                      className={`flex flex-col ${
+                      className={`group flex flex-col ${
                         isAdmin ? "items-end" : "items-start"
                       } space-y-1`}
                     >
@@ -485,6 +553,14 @@ export default function ChatTab() {
                               })
                             : ""}
                         </span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteMessage(m.id)}
+                          className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-red-600 transition cursor-pointer"
+                          title="Hapus Pesan Ini"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
                       </div>
                       <div
                         className={`max-w-[75%] px-4 py-3 rounded-2xl text-xs leading-relaxed font-sans shadow-2xs break-words ${
