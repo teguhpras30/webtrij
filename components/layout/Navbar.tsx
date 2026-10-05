@@ -111,7 +111,11 @@ export default function Navbar() {
       } catch (e) {}
 
       setNotifications(notifs);
-      setUnreadNotifCount(notifs.length);
+      const readCount = typeof window !== "undefined" && user?.id
+        ? Number(localStorage.getItem(`webtrij_read_notif_${user.id}`)) || 0
+        : 0;
+      const unread = Math.max(0, notifs.length - readCount);
+      setUnreadNotifCount(unread);
     }
 
     loadNotifications();
@@ -182,8 +186,15 @@ export default function Navbar() {
                   <div className="relative" ref={notifRef}>
                     <button
                       onClick={() => {
-                        setNotifDropdownOpen(!notifDropdownOpen);
+                        const nextState = !notifDropdownOpen;
+                        setNotifDropdownOpen(nextState);
                         setUserDropdownOpen(false);
+                        if (nextState) {
+                          setUnreadNotifCount(0);
+                          if (typeof window !== "undefined" && user?.id) {
+                            localStorage.setItem(`webtrij_read_notif_${user.id}`, String(notifications.length));
+                          }
+                        }
                       }}
                       className="w-9 h-9 rounded-full flex items-center justify-center text-gray-700 hover:text-purple-600 hover:bg-gray-100/80 transition-all cursor-pointer relative"
                       title="Notifikasi & Promo"
@@ -205,7 +216,12 @@ export default function Navbar() {
                           </div>
                           {unreadNotifCount > 0 && (
                             <button
-                              onClick={() => setUnreadNotifCount(0)}
+                              onClick={() => {
+                                setUnreadNotifCount(0);
+                                if (typeof window !== "undefined" && user?.id) {
+                                  localStorage.setItem(`webtrij_read_notif_${user.id}`, String(notifications.length));
+                                }
+                              }}
                               className="text-[10px] text-purple-600 hover:text-purple-700 font-bold transition cursor-pointer flex items-center gap-1"
                             >
                               <CheckCheck className="w-3 h-3" />
