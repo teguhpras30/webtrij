@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { trackJneAirwaybill } from "@/lib/jne";
 
 export async function GET(req: Request) {
   try {
@@ -11,9 +12,40 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Nomor resi tidak valid" }, { status: 400 });
     }
 
+    // 1. Check Official Direct JNE Tracking API if courier is JNE or waybill is official cnote
+    if (courier.toLowerCase().includes("jne") && !waybill.startsWith("BITESHIP-")) {
+      try {
+        const jneTrack = await trackJneAirwaybill(waybill);
+        if (jneTrack.success && jneTrack.cnote) {
+          const c = jneTrack.cnote;
+          return NextResponse.json({
+            success: true,
+            waybill: c.cnote_no || waybill,
+            courier: "JNE Express (Official Direct)",
+            status: c.pod_status || c.last_status || "IN_TRANSIT",
+            receiver: c.cnote_receiver_name || c.cnote_pod_receiver,
+            podDate: c.cnote_pod_date,
+            photo: c.photo,
+            signature: c.signature,
+            history: (jneTrack.history || []).map((h: any) => ({
+              note: `[${h.code}] ${h.desc}`,
+              updatedAt: h.date || new Date().toISOString(),
+              status: h.code === "D01" ? "delivered" : "in_transit",
+              code: h.code,
+            })),
+            link: `https://www.jne.co.id/tracking-resi?awb=${encodeURIComponent(waybill)}`,
+            isRealApi: true,
+            isJneDirect: true,
+          });
+        }
+      } catch (err) {
+        console.warn("JNE Direct tracking call error:", err);
+      }
+    }
+
     const apiKey = process.env.BITESHIP_API_KEY || "";
 
-    // Call real Biteship API endpoint if key is present
+    // 2. Call real Biteship API endpoint if key is present
     if (apiKey && (apiKey.startsWith("biteship_test.") || apiKey.startsWith("biteship_live."))) {
       try {
         const biteshipRes = await fetch(`https://api.biteship.com/v1/trackings/${waybill}`, {

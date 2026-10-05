@@ -77,6 +77,56 @@ export default function OrdersTab({ orders, onRefresh, showToast }: OrdersTabPro
     }
   };
 
+  const [generatingJneAwb, setGeneratingJneAwb] = useState<string | null>(null);
+
+  const handleGenerateJneAwb = async (order: any) => {
+    const orderId = order.orderNumber || String(order.id);
+    setGeneratingJneAwb(orderId);
+    try {
+      const res = await fetch("/api/admin/jne/generate-awb", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(`🎉 Resi JNE resmi berhasil dibuat: ${data.cnote}`, "success");
+        onRefresh();
+      } else {
+        showToast(`Gagal generate resi JNE: ${data.error || "Terjadi kesalahan"}`, "error");
+      }
+    } catch (e: any) {
+      showToast(`Error: ${e.message}`, "error");
+    } finally {
+      setGeneratingJneAwb(null);
+    }
+  };
+
+  const [requestingBiteshipPickup, setRequestingBiteshipPickup] = useState<string | null>(null);
+
+  const handleRequestBiteshipPickup = async (order: any) => {
+    const orderId = order.orderNumber || String(order.id);
+    setRequestingBiteshipPickup(orderId);
+    try {
+      const res = await fetch("/api/admin/biteship/pickup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(`🎉 Request pick-up Biteship berhasil! Resi: ${data.waybill}`, "success");
+        onRefresh();
+      } else {
+        showToast(`Gagal pick-up Biteship: ${data.error || "Terjadi kesalahan"}`, "error");
+      }
+    } catch (e: any) {
+      showToast(`Error: ${e.message}`, "error");
+    } finally {
+      setRequestingBiteshipPickup(null);
+    }
+  };
+
   // Combined list including local storage fallback orders
   const [allCombinedOrders, setAllCombinedOrders] = useState<any[]>(orders);
 
@@ -506,6 +556,10 @@ export default function OrdersTab({ orders, onRefresh, showToast }: OrdersTabPro
             const isReadyToShip = isReadyStatus(statusUpper);
             const isShipped = isShippedStatus(statusUpper);
             const isCompleted = isCompletedStatus(statusUpper);
+            const isJneOrder =
+              (order.courierName || "").toLowerCase().includes("official") ||
+              (order.courierName || "").toLowerCase().includes("jne") ||
+              (order.courierCode || "").toLowerCase().includes("jne");
 
             return (
               <div
@@ -553,7 +607,7 @@ export default function OrdersTab({ orders, onRefresh, showToast }: OrdersTabPro
                     {isShipped && (
                       <span className="px-3 py-1 bg-purple-50 text-purple-700 font-extrabold rounded-full border border-purple-200 flex items-center gap-1.5 text-[11px]">
                         <Truck className="w-3.5 h-3.5 text-purple-600" />
-                        <span>3. Dikirim ({order.courierName || "Biteship"})</span>
+                        <span>3. Dikirim ({order.courierName || (isJneOrder ? "JNE Express" : "Biteship")})</span>
                       </span>
                     )}
                     {isCompleted && (
@@ -568,6 +622,32 @@ export default function OrdersTab({ orders, onRefresh, showToast }: OrdersTabPro
                         <span>Belum Bayar</span>
                       </span>
                     )}
+                  </div>
+                </div>
+
+                {/* Banner Identifikasi Jalur Ekspedisi (Mencegah Salah Pilih Jemput JNE vs Biteship) */}
+                <div
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between px-4 py-2.5 rounded-2xl border text-xs font-bold gap-2 ${
+                    isJneOrder
+                      ? "bg-red-50/90 border-red-200 text-red-900"
+                      : "bg-indigo-50/90 border-indigo-200 text-indigo-900"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Truck className={`w-4 h-4 shrink-0 ${isJneOrder ? "text-red-600" : "text-indigo-600"}`} />
+                    <span>
+                      Jalur Ekspedisi Terpilih:{" "}
+                      <span className={`px-2 py-0.5 rounded-md text-white font-extrabold text-[11px] ${
+                        isJneOrder ? "bg-red-600" : "bg-indigo-600"
+                      }`}>
+                        {isJneOrder ? "JNE EXPRESS RESMI DIRECT (AKUN ORCHID)" : "BITESHIP AGGREGATOR LOGISTICS"}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-bold text-gray-700 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs">
+                      Layanan: <strong className={isJneOrder ? "text-red-700" : "text-indigo-700"}>{order.courierService || order.courierName || (isJneOrder ? "JNE REG" : "Reguler")}</strong>
+                    </span>
                   </div>
                 </div>
 
@@ -657,6 +737,42 @@ export default function OrdersTab({ orders, onRefresh, showToast }: OrdersTabPro
                       >
                         <Clock className="w-3.5 h-3.5" />
                         <span>📦 Set Siap Kirim</span>
+                      </button>
+                    )}
+
+                    {/* KHUSUS JNE DIRECT: Tombol Request Jemput & Buat Resi Resmi JNE */}
+                    {isJneOrder && !isShipped && !isCompleted && (
+                      <button
+                        type="button"
+                        disabled={generatingJneAwb === orderIdentifier}
+                        onClick={() => handleGenerateJneAwb(order)}
+                        className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50"
+                        title="Request Pick-up & Resi Resmi Langsung ke Server JNE Express"
+                      >
+                        {generatingJneAwb === orderIdentifier ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Truck className="w-3.5 h-3.5" />
+                        )}
+                        <span>⚡ Request Jemput JNE (Akun ORCHID)</span>
+                      </button>
+                    )}
+
+                    {/* KHUSUS BITESHIP: Tombol Request Jemput Kurir Biteship (SiCepat, J&T, dll) */}
+                    {!isJneOrder && !isShipped && !isCompleted && (
+                      <button
+                        type="button"
+                        disabled={requestingBiteshipPickup === orderIdentifier}
+                        onClick={() => handleRequestBiteshipPickup(order)}
+                        className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer disabled:opacity-50"
+                        title="Request Pick-up Armada Kurir via Biteship Aggregator"
+                      >
+                        {requestingBiteshipPickup === orderIdentifier ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Truck className="w-3.5 h-3.5" />
+                        )}
+                        <span>📦 Request Jemput Biteship</span>
                       </button>
                     )}
 
