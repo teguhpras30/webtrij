@@ -119,6 +119,27 @@ body {
   animation-play-state: paused;
 }
 
+@keyframes voucher-marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-voucher-marquee {
+  display: flex;
+  width: max-content;
+  animation: voucher-marquee 30s linear infinite;
+  will-change: transform;
+}
+
+.animate-voucher-marquee:hover,
+.animate-voucher-marquee:active {
+  animation-play-state: paused;
+}
+
 @keyframes floatSlow {
   0% {
     transform: translateY(0px);
