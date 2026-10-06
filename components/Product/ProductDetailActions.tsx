@@ -179,14 +179,30 @@ export default function ProductDetailActions({ product, onVariantChange }: Produ
   // Check product/shop voucher eligibility based on total price (activePrice * qty) vs minPurchase
   const eligibleVoucher = dbVouchers.find((v) => {
     if (!v.isActive) return false;
-    
+
+    const now = new Date();
+    if (v.startDate && new Date(v.startDate) > now) return false;
+    if (v.endDate && new Date(v.endDate) < now) return false;
+    if (v.usageLimit && Number(v.usageLimit) > 0 && Number(v.usedCount || 0) >= Number(v.usageLimit)) return false;
+
     // Exclude shipping vouchers (ONGKIR vouchers apply only on checkout shipping costs)
     const codeUpper = String(v.code || "").toUpperCase();
-    if (codeUpper.includes("ONGKIR") || codeUpper.includes("FREE")) return false;
+    const scopeUpper = String(v.scope || "").toUpperCase();
+    if (codeUpper.includes("ONGKIR") || codeUpper.includes("FREE") || scopeUpper === "SHIPPING" || Boolean(v.isOngkirTemplate)) return false;
+
+    const isEligibleScope =
+      scopeUpper === "SHOP" ||
+      scopeUpper === "ALL" ||
+      !scopeUpper ||
+      (scopeUpper === "PRODUCT" &&
+        Array.isArray(v.targetProductIds) &&
+        v.targetProductIds.map(Number).includes(Number(product.id)));
+
+    if (!isEligibleScope) return false;
 
     const isDiscountType = v.discountType === "PERCENTAGE" || v.discountType === "FIXED";
-    const minP = Number(v.minPurchase || 100000);
-    return isDiscountType && minP > 0 && totalPrice >= minP;
+    const minP = Number(v.minPurchase || 0);
+    return isDiscountType && totalPrice >= minP;
   });
 
   let hasVoucherDiscount = false;

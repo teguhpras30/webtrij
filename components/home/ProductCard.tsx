@@ -76,75 +76,79 @@ export default function ProductCard({ product }: ProductCardProps) {
   const getVoucherDiscountedPrice = (price: number, prod: any) => {
     if (!price || price <= 0) return price;
 
-    // Explicit product-level voucher discount in DB
-    if (prod?.voucherDiscount && Number(prod.voucherDiscount) > 0) {
-      const minP = Number(prod.minPurchase || prod.voucherMinPurchase || 0);
-      if (minP > 0 && price < minP) return price;
-      return Math.max(0, price - Number(prod.voucherDiscount));
-    }
-    if (prod?.discountPercent && Number(prod.discountPercent) > 0) {
-      const minP = Number(prod.minPurchase || prod.voucherMinPurchase || 0);
-      if (minP > 0 && price < minP) return price;
-      return Math.max(0, Math.round(price * (1 - Number(prod.discountPercent) / 100)));
-    }
-    if (prod?.discountAmount && Number(prod.discountAmount) > 0) {
-      const minP = Number(prod.minPurchase || prod.voucherMinPurchase || 0);
-      if (minP > 0 && price < minP) return price;
-      return Math.max(0, price - Number(prod.discountAmount));
+    // Hanya berikan diskon jika ADA voucher aktif yang valid dari database
+    if (!activeVouchers || activeVouchers.length === 0) {
+      return price;
     }
 
-    // Dynamic shop / discount vouchers check from active public vouchers
-    if (activeVouchers && activeVouchers.length > 0) {
-      const shopDiscountVouchers = activeVouchers.filter((v: any) => {
-        const code = String(v.code || "").toUpperCase();
-        const scope = String(v.scope || "").toUpperCase();
-        const isShipping =
-          scope === "SHIPPING" ||
-          code.includes("ONGKIR") ||
-          code.includes("FREE") ||
-          Boolean(v.isOngkirTemplate);
-        
-        const isEligibleScope =
-          scope === "SHOP" ||
-          (scope === "PRODUCT" &&
-            Array.isArray(v.targetProductIds) &&
-            v.targetProductIds.includes(prod.id));
+    const now = new Date();
 
-        return !isShipping && isEligibleScope;
-      });
+    const shopDiscountVouchers = activeVouchers.filter((v: any) => {
+      // 1. Voucher harus berstatus aktif
+      if (!v.isActive) return false;
 
-      let maxDiscount = 0;
-      for (const voc of shopDiscountVouchers) {
-        const minP = Number(voc.minPurchase) || 0;
-        if (price < minP) continue;
+      // 2. Cek masa berlaku voucher (startDate dan endDate)
+      if (v.startDate && new Date(v.startDate) > now) return false;
+      if (v.endDate && new Date(v.endDate) < now) return false;
 
-        let discount = 0;
-        if (voc.discountType === "PERCENTAGE") {
-          discount = (price * Number(voc.discountValue)) / 100;
-          if (voc.maxDiscount && Number(voc.maxDiscount) > 0) {
-            discount = Math.min(discount, Number(voc.maxDiscount));
-          }
-        } else {
-          discount = Number(voc.discountValue) || 0;
-        }
-
-        if (discount > maxDiscount) {
-          maxDiscount = discount;
-        }
+      // 3. Cek kuota pemakaian (usageLimit)
+      if (v.usageLimit && Number(v.usageLimit) > 0 && Number(v.usedCount || 0) >= Number(v.usageLimit)) {
+        return false;
       }
 
-      if (maxDiscount > 0) {
-        return Math.max(0, Math.round(price - maxDiscount));
+      // 4. Pisahkan voucher diskon produk/toko dari voucher ongkir
+      const code = String(v.code || "").toUpperCase();
+      const scope = String(v.scope || "").toUpperCase();
+      const isShipping =
+        scope === "SHIPPING" ||
+        code.includes("ONGKIR") ||
+        code.includes("FREE") ||
+        Boolean(v.isOngkirTemplate);
+
+      if (isShipping) return false;
+
+      // 5. Cek cakupan produk (SHOP, ALL, atau khusus produk tertentu)
+      const isEligibleScope =
+        scope === "SHOP" ||
+        scope === "ALL" ||
+        !scope ||
+        (scope === "PRODUCT" &&
+          Array.isArray(v.targetProductIds) &&
+          v.targetProductIds.map(Number).includes(Number(prod.id)));
+
+      return isEligibleScope;
+    });
+
+    if (shopDiscountVouchers.length === 0) {
+      return price;
+    }
+
+    let maxDiscount = 0;
+    for (const voc of shopDiscountVouchers) {
+      const minP = Number(voc.minPurchase) || 0;
+      // Harus memenuhi syarat minimal pembelian
+      if (price < minP) continue;
+
+      let discount = 0;
+      if (String(voc.discountType).toUpperCase() === "PERCENTAGE") {
+        discount = (price * Number(voc.discountValue)) / 100;
+        if (voc.maxDiscount && Number(voc.maxDiscount) > 0) {
+          discount = Math.min(discount, Number(voc.maxDiscount));
+        }
+      } else {
+        discount = Number(voc.discountValue) || 0;
+      }
+
+      if (discount > maxDiscount) {
+        maxDiscount = discount;
       }
     }
 
-    // Default shop voucher fallback if price >= 100.000 (Min. Belanja Rp 100.000, Max potongan 20.000)
-    const minShopPurchase = Number(prod.minPurchase || prod.voucherMinPurchase || 100000);
-    if (price >= minShopPurchase) {
-      const defaultDiscount = Math.min(20000, Math.round(price * 0.2));
-      return Math.max(0, price - defaultDiscount);
+    if (maxDiscount > 0) {
+      return Math.max(0, Math.round(price - maxDiscount));
     }
 
+    // Jika tidak ada voucher yang aktif / memenuhi syarat, kembalikan harga normal (tidak ada harga coret)
     return price;
   };
 
