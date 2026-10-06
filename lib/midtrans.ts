@@ -47,7 +47,7 @@ export async function createMidtransSnapTransaction(params: CreateSnapTransactio
     },
     customer_details: {
       first_name: params.customerDetails.first_name,
-      email: params.customerDetails.email || 'teguhpras30@gmail.com',
+      email: params.customerDetails.email || 'customer@tri-j.co.id',
       phone: params.customerDetails.phone || '08961656039',
       billing_address: {
         first_name: params.customerDetails.first_name,

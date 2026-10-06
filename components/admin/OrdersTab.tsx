@@ -289,16 +289,16 @@ export default function OrdersTab({ orders, onRefresh, showToast }: OrdersTabPro
 
     try {
       setUpdatingOrderId(orderIdentifier);
-      const res = await fetch("/api/user/orders", {
+      const res = await fetch("/api/admin/orders", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderId: orderIdentifier,
           status: newStatus,
           waybillNumber: autoWaybill,
-          customerName: order.customerName || "Teguh Prasetyo",
-          customerPhone: order.customerPhone || "08961656039",
-          customerEmail: order.customerEmail || "teguhpras30@gmail.com",
+          customerName: order.customerName || "Pelanggan TRI J",
+          customerPhone: order.customerPhone || "",
+          customerEmail: order.customerEmail || undefined,
           shippingAddress: order.shippingAddress || "Surabaya, Jawa Timur",
           courierCode: order.courierCode || "jne",
           courierService: order.courierService || "reg",

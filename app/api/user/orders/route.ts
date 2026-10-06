@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getAuthenticatedUser, getAuthenticatedAdmin } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { OrderStatus } from '@/lib/generated/prisma/client';
-import { createBiteshipOrder } from '@/lib/biteship';
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET() {
   try {
@@ -11,53 +13,44 @@ export async function GET() {
     if (!authUser) {
       return NextResponse.json({ success: true, orders: [] });
     }
-    
-    let orders: any[] = [];
-    if (authUser.role && String(authUser.role).toUpperCase() === "ADMIN") {
-      orders = await db.order.findMany({
-        include: {
-          items: {
-            include: {
-              product: {
-                select: {
-                  id: true,
-                  name: true,
-                  thumbnail: true,
-                  slug: true
-                }
-              }
-            }
-          }
-        },
-        orderBy: { createdAt: 'desc' }
-      });
-    } else {
-      orders = await db.order.findMany({
-        where: {
-          OR: [
-            { userId: authUser.id },
-            { customerEmail: authUser.email }
-          ]
-        },
-        include: {
-          items: {
-            include: {
-              product: {
-                select: {
-                  id: true,
-                  name: true,
-                  thumbnail: true,
-                  slug: true
-                }
-              }
-            }
-          }
-        },
-        orderBy: { createdAt: 'desc' }
+
+    // STRICT ISOLATION: Hanya ambil pesanan yang benar-benar milik pengguna yang sedang login ini
+    const orConditions: any[] = [{ userId: authUser.id }];
+
+    if (authUser.email && authUser.email.trim()) {
+      orConditions.push({
+        customerEmail: { equals: authUser.email.trim(), mode: "insensitive" }
       });
     }
 
-    // Auto sync PENDING orders with Midtrans status
+    if (authUser.phone && authUser.phone.trim()) {
+      orConditions.push({
+        customerPhone: authUser.phone.trim()
+      });
+    }
+
+    const orders = await db.order.findMany({
+      where: {
+        OR: orConditions
+      },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                thumbnail: true,
+                slug: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Auto sync PENDING orders milik user dengan Midtrans status
     const serverKey = process.env.MIDTRANS_SERVER_KEY || '';
     const authHeader = Buffer.from(`${serverKey}:`).toString('base64');
 
@@ -98,7 +91,7 @@ export async function GET() {
             }
           }
         } catch (e) {
-          console.warn(`Failed to sync Midtrans status for order ${order.orderNumber}:`, e);
+          console.warn(`Failed to sync Midtrans status for user order ${order.orderNumber}:`, e);
         }
       }
     }
@@ -115,107 +108,50 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   try {
-    const adminUser = await getAuthenticatedAdmin();
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Unauthorized: Akses khusus Admin' }, { status: 401 });
+    const authUser = await getAuthenticatedUser();
+    if (!authUser) {
+      return NextResponse.json({ error: 'Unauthorized: Silakan login terlebih dahulu' }, { status: 401 });
     }
 
     const body = await req.json();
-    const { orderId, status, waybillNumber } = body;
-
-    const targetIdentifier = String(orderId || body.id || body.orderNumber || "").trim();
+    const { orderNumber, orderId, status } = body;
+    const targetIdentifier = String(orderNumber || orderId || body.id || "").trim();
 
     if (!targetIdentifier) {
-      return NextResponse.json({ error: 'Order ID / Nomor Pesanan wajib diisi.' }, { status: 400 });
+      return NextResponse.json({ error: 'Nomor Pesanan wajib diisi.' }, { status: 400 });
     }
 
-    const updateData: any = {};
-    if (status) updateData.status = status;
-    if (waybillNumber !== undefined) updateData.waybillNumber = waybillNumber;
-
-    // Search by orderNumber or ID in Database
+    // Cari pesanan di database
     const existingOrder = await db.order.findFirst({
       where: {
         OR: [
           { orderNumber: targetIdentifier },
           { id: isNaN(Number(targetIdentifier)) ? -1 : Number(targetIdentifier) }
         ]
-      },
-      include: {
-        items: {
-          include: { product: true }
-        }
       }
     });
 
     if (!existingOrder) {
-      // If sample or local order, push to Biteship API only if not already pushed
-      const hasLocalWaybill = waybillNumber && waybillNumber.startsWith("WYB-");
-      if ((status === 'READY_TO_SHIP' || status === 'SHIPPED' || status === 'PACKING') && !hasLocalWaybill) {
-        try {
-          const biteshipRes = await createBiteshipOrder({
-            orderNumber: targetIdentifier,
-            customerName: body.customerName || "Teguh Prasetyo",
-            customerPhone: body.customerPhone || "08961656039",
-            customerEmail: body.customerEmail || "teguhpras30@gmail.com",
-            shippingAddress: body.shippingAddress || "Manukan Wetan 60 Blok B No.19 Kec. Tandes, Surabaya",
-            courierCompany: body.courierCode || "jne",
-            courierType: body.courierService || "reg",
-            items: body.items || [{ name: "Lemari Bow Bow 4 Susun", unitPrice: 132000, quantity: 1, weightGram: 1000 }],
-            grandTotal: body.grandTotal || 107100
-          });
-
-          if (biteshipRes && biteshipRes.courier) {
-            updateData.waybillNumber = biteshipRes.courier.waybill_id || biteshipRes.courier.tracking_id;
-          }
-        } catch (bErr) {
-          console.warn("Biteship push warning for local order:", bErr);
-        }
-      }
-
-      return NextResponse.json({
-        success: true,
-        message: `Status pesanan ${targetIdentifier} diperbarui.`,
-        order: { orderNumber: targetIdentifier, status, waybillNumber: updateData.waybillNumber || waybillNumber }
-      });
+      return NextResponse.json({ error: 'Pesanan tidak ditemukan.' }, { status: 404 });
     }
 
-    // Anti-duplicate protection: Only push to Biteship if waybill is not yet generated
-    const hasExistingWaybill = existingOrder.waybillNumber && (existingOrder.waybillNumber.startsWith("WYB-") || existingOrder.waybillNumber.length > 15);
+    // Keamanan: Pastikan hanya pemilik pesanan (atau admin) yang bisa mengonfirmasi/mengubah
+    const r = authUser.role ? String(authUser.role).toUpperCase() : "";
+    const isAdmin = r === "ADMIN" || r === "SUPER_ADMIN" || r === "SUPERADMIN";
+    const isOwner =
+      existingOrder.userId === authUser.id ||
+      (authUser.email && existingOrder.customerEmail?.toLowerCase() === authUser.email.toLowerCase()) ||
+      (authUser.phone && existingOrder.customerPhone === authUser.phone);
 
-    if ((status === 'READY_TO_SHIP' || status === 'SHIPPED' || status === 'PACKING') && !hasExistingWaybill) {
-      try {
-        const biteshipRes = await createBiteshipOrder({
-          orderNumber: existingOrder.orderNumber,
-          customerName: existingOrder.customerName || "Pelanggan TRI J",
-          customerPhone: existingOrder.customerPhone || "08961656039",
-          customerEmail: existingOrder.customerEmail || undefined,
-          shippingAddress: existingOrder.shippingAddress,
-          courierCompany: existingOrder.courierCode || "jne",
-          courierType: existingOrder.courierService || "reg",
-          items: existingOrder.items.map(i => ({
-            name: i.variantName || i.product?.name || "Perabot TRI J",
-            unitPrice: i.unitPrice,
-            quantity: i.quantity,
-            weightGram: i.weightGram || 1000
-          })),
-          grandTotal: existingOrder.grandTotal
-        });
-
-        if (biteshipRes && biteshipRes.courier) {
-          const liveWaybill = biteshipRes.courier.waybill_id || biteshipRes.courier.tracking_id;
-          if (liveWaybill) {
-            updateData.waybillNumber = liveWaybill;
-          }
-        }
-      } catch (bErr) {
-        console.warn("Biteship push on status change warning:", bErr);
-      }
+    if (!isOwner && !isAdmin) {
+      return NextResponse.json({ error: 'Akses ditolak: Anda tidak memiliki akses ke pesanan ini.' }, { status: 403 });
     }
 
     const updatedOrder = await db.order.update({
       where: { id: existingOrder.id },
-      data: updateData
+      data: {
+        status: status || OrderStatus.COMPLETED
+      }
     });
 
     return NextResponse.json({
@@ -223,7 +159,7 @@ export async function PUT(req: Request) {
       order: updatedOrder
     });
   } catch (error: any) {
-    console.error('Update Order Status Error:', error);
+    console.error('Update User Order Status Error:', error);
     return NextResponse.json({ error: error.message || 'Gagal memperbarui status pesanan' }, { status: 500 });
   }
 }

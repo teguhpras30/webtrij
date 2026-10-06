@@ -138,7 +138,7 @@ export default function AdminDashboardPage() {
         fetch("/api/admin/categories"),
         fetch("/api/admin/hero-slides"),
         fetch("/api/admin/testimonials"),
-        fetch("/api/user/orders"),
+        fetch("/api/admin/orders"),
         fetch("/api/admin/vouchers"),
         fetch("/api/admin/users"),
         fetch("/api/admin/reviews"),

@@ -188,7 +188,7 @@ export async function POST(request: Request) {
         status: 'PENDING',
         customerName,
         customerPhone: customerPhone || '',
-        customerEmail: customerEmail || authUser?.email || 'teguhpras30@gmail.com',
+        customerEmail: customerEmail || authUser?.email || (customerPhone ? `${customerPhone}@customer.tri-j.co.id` : 'customer@tri-j.co.id'),
         companyName,
         taxNumber,
         shippingAddress,
@@ -257,7 +257,7 @@ export async function POST(request: Request) {
       grossAmount: grandTotal,
       customerDetails: {
         first_name: customerName,
-        email: customerEmail || authUser?.email || 'teguhpras30@gmail.com',
+        email: customerEmail || authUser?.email || (customerPhone ? `${customerPhone}@customer.tri-j.co.id` : 'customer@tri-j.co.id'),
         phone: customerPhone || '08961656039',
         company: companyName,
         address: shippingAddress

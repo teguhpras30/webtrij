@@ -108,11 +108,12 @@ export default function UserModal({ initialData, allOrders = [], onClose, onSucc
         }
         
         try {
-          const res = await fetch("/api/user/orders");
+          const res = await fetch("/api/admin/orders");
           if (res.ok) {
             const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-              combined = [...combined, ...data];
+            const list = Array.isArray(data) ? data : data.orders || [];
+            if (Array.isArray(list) && list.length > 0) {
+              combined = [...combined, ...list];
             }
           }
         } catch (e) {}
