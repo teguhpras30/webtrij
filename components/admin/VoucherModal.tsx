@@ -81,7 +81,7 @@ export default function VoucherModal({ products = [], initialData, onClose, onSu
           discountType,
           discountValue: Number(discountValue),
           minPurchase: Number(minPurchase) || 0,
-          maxDiscount: maxDiscount ? Number(maxDiscount) : null,
+          maxDiscount: discountType === "PERCENTAGE" && maxDiscount ? Number(maxDiscount) : null,
           usageLimit: usageLimit ? Number(usageLimit) : null,
           isActive,
           startDate: startDate ? new Date(startDate).toISOString() : null,

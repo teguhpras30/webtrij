@@ -119,7 +119,7 @@ export async function POST(req: Request) {
         discountType: discountType === "FIXED" ? "FIXED" : "PERCENTAGE",
         discountValue: Number(discountValue),
         minPurchase: minPurchase ? Number(minPurchase) : 0,
-        maxDiscount: maxDiscount ? Number(maxDiscount) : null,
+        maxDiscount: discountType === "PERCENTAGE" && maxDiscount ? Number(maxDiscount) : null,
         usageLimit: usageLimit ? Number(usageLimit) : null,
         isActive: isActive !== undefined ? Boolean(isActive) : true,
         startDate: startDate ? new Date(startDate) : null,

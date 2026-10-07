@@ -59,7 +59,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         discountType: discountType ? (discountType === "FIXED" ? "FIXED" : "PERCENTAGE") : undefined,
         discountValue: discountValue !== undefined ? Number(discountValue) : undefined,
         minPurchase: minPurchase !== undefined ? Number(minPurchase) : undefined,
-        maxDiscount: maxDiscount !== undefined ? (maxDiscount ? Number(maxDiscount) : null) : undefined,
+        maxDiscount:
+          discountType === "FIXED"
+            ? null
+            : maxDiscount !== undefined
+            ? (maxDiscount ? Number(maxDiscount) : null)
+            : undefined,
         usageLimit: usageLimit !== undefined ? (usageLimit ? Number(usageLimit) : null) : undefined,
         isActive: isActive !== undefined ? Boolean(isActive) : undefined,
         startDate: startDate !== undefined ? (startDate ? new Date(startDate) : null) : undefined,

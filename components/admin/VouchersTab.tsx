@@ -261,7 +261,7 @@ export default function VouchersTab({
 
                     {/* Maksimal Diskon */}
                     <td className="px-4 py-3 font-semibold text-gray-700 whitespace-nowrap">
-                      {v.maxDiscount && Number(v.maxDiscount) > 0 ? (
+                      {v.discountType === "PERCENTAGE" && v.maxDiscount && Number(v.maxDiscount) > 0 ? (
                         <span className="text-amber-700 font-bold">Rp {Number(v.maxDiscount).toLocaleString("id-ID")}</span>
                       ) : (
                         <span className="text-gray-400 italic">-</span>
