@@ -45,6 +45,13 @@ export async function createMidtransSnapTransaction(params: CreateSnapTransactio
     credit_card: {
       secure: true,
     },
+    qris: {
+      acquirer: 'gopay',
+    },
+    gopay: {
+      enable_callback: true,
+      callback_url: 'https://tri-j.co.id/user/purchase',
+    },
     customer_details: {
       first_name: params.customerDetails.first_name,
       email: params.customerDetails.email || 'customer@tri-j.co.id',
