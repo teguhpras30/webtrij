@@ -52,7 +52,7 @@ const JNE_CONFIG = {
   generateUrl: process.env.JNE_GENERATE_URL || "https://apiv2.jne.co.id:10206/tracing/api/generatecnote",
   trackingUrl: process.env.JNE_TRACKING_URL || "https://apiv2.jne.co.id:10205/tracing/api/list/v1/cnote",
   defaultOrigin: process.env.JNE_DEFAULT_ORIGIN || "SUB10000",
-  branch: process.env.JNE_BRANCH || "SUB",
+  branch: process.env.JNE_BRANCH || "SUB000",
   cust: process.env.JNE_CUST || "80540008",
 };
 
@@ -225,7 +225,8 @@ export async function generateJneAirwaybill(params: JneGenerateAwbParams): Promi
     const body = new URLSearchParams();
     body.append("username", JNE_CONFIG.username);
     body.append("api_key", JNE_CONFIG.apiKey);
-    body.append("OLSHOP_BRANCH", JNE_CONFIG.branch);
+    const branchCode = JNE_CONFIG.branch.length === 3 ? `${JNE_CONFIG.branch}000` : JNE_CONFIG.branch;
+    body.append("OLSHOP_BRANCH", branchCode);
     body.append("OLSHOP_CUST", JNE_CONFIG.cust);
     body.append("OLSHOP_ORDERID", params.orderId.substring(0, 20));
 
