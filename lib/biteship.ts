@@ -69,13 +69,17 @@ export async function calculateBiteshipShippingRates(params: BiteshipRateRequest
         else if (sDisplay.includes('YES') || sDisplay.includes('SPS')) icon = '⚡';
         else if (sDisplay.includes('OKE')) icon = '💡';
 
+        const basePrice = parseInt(p.price, 10) || 0;
+        // Khusus API JNE: Berikan potongan 20% (harga yang ditampilkan langsung setelah diskon 20%)
+        const discountedPrice = Math.round(basePrice * 0.8);
+
         return {
           courier_code: 'jne',
           courier_name: 'JNE Express (Official)',
           service_code: `jne_${sDisplay.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
           service_name: `JNE ${sDisplay}`,
           etd: `${p.etd_from} - ${p.etd_thru} ${p.times === 'D' ? 'Hari' : 'Jam'}`,
-          price: parseInt(p.price, 10),
+          price: discountedPrice,
           description: `Tarif Resmi JNE Direct (${p.goods_type})`,
           icon,
         };
@@ -135,13 +139,17 @@ export async function calculateBiteshipShippingRates(params: BiteshipRateRequest
               ? rawService
               : `${courierCode}_${rawService}`;
 
+            const isJne = courierCode === 'jne';
+            const basePrice = item.price || 12000;
+            const finalPrice = isJne ? Math.round(basePrice * 0.8) : basePrice;
+
             return {
               courier_code: item.courier_code || 'biteship',
               courier_name: item.courier_name || 'Kurir Logistik',
               service_code: uniqueServiceCode,
               service_name: `${item.courier_name} ${item.courier_service_name || ''}`.trim(),
               etd: item.shipment_duration_range ? `${item.shipment_duration_range} ${item.shipment_duration_unit || 'Hari'}` : '1-2 Hari',
-              price: item.price || 12000,
+              price: finalPrice,
               description: item.type ? `Layanan Pengiriman ${item.type}` : 'Pengiriman Terverifikasi Biteship',
               icon
             };
@@ -228,7 +236,7 @@ export async function calculateBiteshipShippingRates(params: BiteshipRateRequest
       service_code: 'jne_reg',
       service_name: 'JNE REG (Regular)',
       etd: '1 - 2 Hari Kerja',
-      price: 12000 * weightKg,
+      price: Math.round(12000 * weightKg * 0.8),
       description: 'Layanan pengiriman reguler terpercaya',
       icon: '🚚'
     },
@@ -248,7 +256,7 @@ export async function calculateBiteshipShippingRates(params: BiteshipRateRequest
       service_code: 'jne_jtr',
       service_name: 'JNE JTR (Cargo Trucking)',
       etd: '2 - 4 Hari Kerja',
-      price: Math.max(30000, 6000 * weightKg),
+      price: Math.round(Math.max(30000, 6000 * weightKg) * 0.8),
       description: 'Layanan kargo hemat JNE khusus barang besar & berat',
       icon: '🚛'
     },
@@ -258,7 +266,7 @@ export async function calculateBiteshipShippingRates(params: BiteshipRateRequest
       service_code: 'jne_yes',
       service_name: 'JNE YES (Yakin Esok Sampai)',
       etd: '1 Hari (Besok Sampai)',
-      price: 24000 * weightKg,
+      price: Math.round(24000 * weightKg * 0.8),
       description: 'Pengiriman prioritas esok hari',
       icon: '⚡'
     },
