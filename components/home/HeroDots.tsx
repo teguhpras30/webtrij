@@ -37,7 +37,7 @@ export default function HeroDots({
                                 key={`progress-${index}`}
                                 className="absolute left-0 top-0 h-full bg-[#774EFC] rounded-full animate-progress"
                                 style={{
-                                    animation: "heroProgress 5s linear forwards",
+                                    animation: "heroProgress 8s linear forwards",
                                 }}
                             />
                         )}

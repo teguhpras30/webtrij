@@ -42,7 +42,7 @@ export default function HeroSection() {
     },
     [
       Autoplay({
-        delay: 3800,
+        delay: 8000,
         stopOnInteraction: false,
         stopOnMouseEnter: false,
       }),
@@ -73,7 +73,7 @@ export default function HeroSection() {
       } else {
         emblaApi.scrollTo(0);
       }
-    }, 3800);
+    }, 8000);
 
     return () => {
       emblaApi.off("select", onSelect);
