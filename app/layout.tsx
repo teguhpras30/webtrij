@@ -4,6 +4,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import SmoothScrollProvider from "@/components/layout/SmoothScrollProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -133,8 +134,10 @@ export default function RootLayout({
         />
         <AuthProvider>
           <CartProvider>
-            {children}
-            <UserChatWidget />
+            <SmoothScrollProvider>
+              {children}
+              <UserChatWidget />
+            </SmoothScrollProvider>
           </CartProvider>
         </AuthProvider>
       </body>
