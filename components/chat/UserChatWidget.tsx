@@ -26,20 +26,10 @@ export default function UserChatWidget() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Do NOT render floating user chat widget on admin pages or login
-  if (pathname?.startsWith("/admin") || pathname?.startsWith("/secret-login")) {
+  // Live Chat hanya untuk user yang sudah login, dan jangan render di halaman admin / login
+  if (!user || pathname?.startsWith("/admin") || pathname?.startsWith("/secret-login")) {
     return null;
   }
-
-  const getOrCreateGuestToken = () => {
-    if (typeof window === "undefined") return "";
-    let token = localStorage.getItem("webtrij_chat_guest_token");
-    if (!token) {
-      token = "guest_" + Date.now() + "_" + Math.random().toString(36).substring(2, 8);
-      localStorage.setItem("webtrij_chat_guest_token", token);
-    }
-    return token;
-  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -47,13 +37,8 @@ export default function UserChatWidget() {
 
   const fetchChat = async () => {
     try {
-      let url = "/api/chat";
-      if (!user) {
-        const guestToken = getOrCreateGuestToken();
-        if (!guestToken) return;
-        url += `?guestToken=${encodeURIComponent(guestToken)}`;
-      }
-      const res = await fetch(url);
+      if (!user) return;
+      const res = await fetch("/api/chat");
       if (!res.ok) return;
       const data = await res.json();
       if (data.room) {
@@ -67,7 +52,7 @@ export default function UserChatWidget() {
 
   // Initial fetch and 3-second polling interval
   useEffect(() => {
-    if (!pathname?.startsWith("/admin")) {
+    if (user && !pathname?.startsWith("/admin")) {
       fetchChat();
       const interval = setInterval(fetchChat, 3000);
       return () => clearInterval(interval);
@@ -83,13 +68,11 @@ export default function UserChatWidget() {
 
   const handleSendMessage = async (customText?: string) => {
     const textToSend = customText || inputMsg;
-    if (!textToSend || !textToSend.trim() || sending) return;
+    if (!textToSend || !textToSend.trim() || sending || !user) return;
 
     const clean = textToSend.trim();
     setInputMsg("");
     setSending(true);
-
-    const guestToken = !user ? getOrCreateGuestToken() : undefined;
 
     // Optimistic UI update
     const tempMsg: ChatMessage = {
@@ -108,7 +91,6 @@ export default function UserChatWidget() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: clean,
-          guestToken,
         }),
       });
       if (res.ok) {
@@ -194,23 +176,6 @@ export default function UserChatWidget() {
               </button>
             </div>
           </div>
-
-          {/* Guest Mode Banner */}
-          {!user && (
-            <div className="bg-amber-50 border-b border-amber-200 px-3.5 py-2 flex items-center justify-between text-[11px] text-amber-900 shadow-xs">
-              <span className="flex items-center gap-1.5 font-medium">
-                <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                <span>Mode Chat: <strong>Tamu (Tanpa Login)</strong></span>
-              </span>
-              <Link
-                href="/secret-login"
-                className="text-purple-700 font-extrabold hover:underline flex items-center gap-1"
-              >
-                <UserCheck className="w-3 h-3" />
-                <span>Login</span>
-              </Link>
-            </div>
-          )}
 
           {/* Message List */}
           <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/70">

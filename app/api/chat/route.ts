@@ -5,72 +5,36 @@ import { getAuthenticatedUser } from "@/lib/auth";
 export async function GET(req: Request) {
   try {
     const user = await getAuthenticatedUser();
-    const { searchParams } = new URL(req.url);
-    const guestToken = searchParams.get("guestToken");
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized: Silakan login untuk menggunakan Live Chat." }, { status: 401 });
+    }
 
-    let room = null;
-
-    if (user) {
-      room = await db.chatRoom.findUnique({
-        where: { userId: user.id },
-        include: {
-          messages: {
-            orderBy: { createdAt: "asc" },
-          },
+    let room = await db.chatRoom.findUnique({
+      where: { userId: user.id },
+      include: {
+        messages: {
+          orderBy: { createdAt: "asc" },
         },
-      });
+      },
+    });
 
-      if (!room) {
-        room = await db.chatRoom.create({
-          data: {
-            userId: user.id,
-            lastMessage: "Halo kak, selamat datang di TRI J! Ada yang bisa kami bantu hari ini? 😊",
-            lastSender: "ADMIN",
-            unreadUser: 0,
-            messages: {
-              create: {
-                senderType: "ADMIN",
-                senderName: "Customer Service TRI J",
-                message: "Halo kak, selamat datang di TRI J! Ada yang bisa kami bantu hari ini? 😊",
-              },
+    if (!room) {
+      room = await db.chatRoom.create({
+        data: {
+          userId: user.id,
+          lastMessage: "Halo kak, selamat datang di TRI J! Ada yang bisa kami bantu hari ini? 😊",
+          lastSender: "ADMIN",
+          unreadUser: 0,
+          messages: {
+            create: {
+              senderType: "ADMIN",
+              senderName: "Customer Service TRI J",
+              message: "Halo kak, selamat datang di TRI J! Ada yang bisa kami bantu hari ini? 😊",
             },
           },
-          include: { messages: true },
-        });
-      }
-    } else if (guestToken && guestToken.trim()) {
-      const cleanGuestToken = guestToken.trim();
-      room = await db.chatRoom.findUnique({
-        where: { guestToken: cleanGuestToken },
-        include: {
-          messages: {
-            orderBy: { createdAt: "asc" },
-          },
         },
+        include: { messages: true },
       });
-
-      if (!room) {
-        const shortToken = cleanGuestToken.slice(-4);
-        room = await db.chatRoom.create({
-          data: {
-            guestToken: cleanGuestToken,
-            guestName: `Tamu #${shortToken}`,
-            lastMessage: "Halo kak, selamat datang di TRI J! Ada yang bisa kami bantu hari ini? 😊",
-            lastSender: "ADMIN",
-            unreadUser: 0,
-            messages: {
-              create: {
-                senderType: "ADMIN",
-                senderName: "Customer Service TRI J",
-                message: "Halo kak, selamat datang di TRI J! Ada yang bisa kami bantu hari ini? 😊",
-              },
-            },
-          },
-          include: { messages: true },
-        });
-      }
-    } else {
-      return NextResponse.json({ room: null });
     }
 
     if (room && room.unreadUser > 0) {
@@ -139,63 +103,30 @@ Contoh: #${roomId} Halo kak, produk ready stok siap kirim!`;
 export async function POST(req: Request) {
   try {
     const user = await getAuthenticatedUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized: Silakan login untuk mengirim pesan." }, { status: 401 });
+    }
+
     const body = await req.json();
-    const { message, guestToken, guestName } = body || {};
+    const { message } = body || {};
 
     if (!message || !message.trim()) {
       return NextResponse.json({ error: "Pesan tidak boleh kosong." }, { status: 400 });
     }
 
     const cleanMsg = message.trim();
-    let room = null;
-    let senderName = "Pembeli";
-    let userInfoForWa: any = null;
+    let room = await db.chatRoom.findUnique({
+      where: { userId: user.id },
+    });
 
-    if (user) {
-      room = await db.chatRoom.findUnique({
-        where: { userId: user.id },
+    if (!room) {
+      room = await db.chatRoom.create({
+        data: { userId: user.id },
       });
-
-      if (!room) {
-        room = await db.chatRoom.create({
-          data: { userId: user.id },
-        });
-      }
-
-      senderName = user.name || "Pembeli";
-      userInfoForWa = user;
-    } else if (guestToken && guestToken.trim()) {
-      const cleanGuestToken = guestToken.trim();
-      const shortToken = cleanGuestToken.slice(-4);
-      const defaultGuestName = guestName && guestName.trim() ? guestName.trim() : `Tamu #${shortToken}`;
-
-      room = await db.chatRoom.findUnique({
-        where: { guestToken: cleanGuestToken },
-      });
-
-      if (!room) {
-        room = await db.chatRoom.create({
-          data: {
-            guestToken: cleanGuestToken,
-            guestName: defaultGuestName,
-          },
-        });
-      } else if (guestName && guestName.trim() && room.guestName !== guestName.trim()) {
-        await db.chatRoom.update({
-          where: { id: room.id },
-          data: { guestName: guestName.trim() },
-        });
-      }
-
-      senderName = room.guestName || defaultGuestName;
-      userInfoForWa = {
-        name: `${senderName} (Guest/Tanpa Login)`,
-        phone: "-",
-        email: "-",
-      };
-    } else {
-      return NextResponse.json({ error: "Sesi live chat tidak ditemukan. Silakan refresh halaman." }, { status: 400 });
     }
+
+    const senderName = user.name || "Pembeli";
+    const userInfoForWa = user;
 
     const newMsg = await db.chatMessage.create({
       data: {
